@@ -6,26 +6,13 @@ import path from 'path';
 const CONTENT_DIR = './content';
 const OUTPUT_DIR = './dist';
 const TEMPLATE_FILE = './template.html';
+const LIVE_RELOAD_SCRIPT = './scripts/live-reload.js';
 const PORT = 3000;
 
-// Read template once
+// Read template and live reload script once
 const template = fs.readFileSync(TEMPLATE_FILE, 'utf-8');
-
-// Live reload script for dev server
-const liveReloadScript = `
-  <script>
-    // Simple live reload: poll every 2 seconds
-    let lastModified = Date.now();
-    setInterval(async () => {
-      try {
-        const res = await fetch('/reload-check');
-        const { modified } = await res.json();
-        if (modified > lastModified) {
-          location.reload();
-        }
-      } catch(e) {}
-    }, 2000);
-  </script>`;
+const liveReloadJs = fs.readFileSync(LIVE_RELOAD_SCRIPT, 'utf-8');
+const liveReloadScript = `<script>\n${liveReloadJs}\n</script>`;
 
 // HTML template wrapper with live reload
 function htmlTemplate(title, content) {

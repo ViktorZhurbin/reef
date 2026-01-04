@@ -30,6 +30,8 @@ Then open http://localhost:3000 in your browser.
 ```
 /
 ├── content/          # Your .md files go here
+├── scripts/          # Client-side JavaScript files
+│   └── live-reload.js
 ├── dist/            # Generated .html files
 ├── template.html    # HTML template with {{title}} and {{content}} placeholders
 ├── build.js         # Converts markdown to HTML
@@ -71,7 +73,13 @@ Run `npm run build` to generate HTML files, then deploy the `dist/` folder to an
 - Runs the build process
 - Watches `content/` for changes
 - Serves files from `dist/` via HTTP
-- Injects live reload script and provides polling endpoint
+- Reads `scripts/live-reload.js` and injects it into HTML
+- Provides `/reload-check` endpoint for live reload polling
+
+**scripts/live-reload.js**:
+- Client-side script for browser live reload
+- Polls server every 2 seconds for changes
+- Automatically reloads page when content updates
 
 ## Why So Minimal?
 
