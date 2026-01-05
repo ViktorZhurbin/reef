@@ -5,14 +5,13 @@ A minimal markdown-to-HTML blog generator that happens to work.
 
 ## Features
 
-- ✓ Converts markdown files to HTML
-- ✓ Dev server with live reload via SSE
-- ✓ Minimal dependencies: `marked` (parser), `polka` (routing), `sirv` (static files)
+✓ Converts markdown files to HTML
+✓ Dev server with live reload via SSE
 
 
 ## Philosophy & Constraints
 
-This project explores the **minimum** needed for a static site generator. It's an exercise in simplicity, but with an important note: quality is important and security cannot be neglected.
+This project explores what's needed for a minimal static site generator that doesn't suck. It's an exercise in balancing simplicity and decent DX.
 
 ### Core Principles
 1. **Keep it simple** - Just convert `.md` > `.html`
@@ -39,25 +38,10 @@ npm run dev
 
 Then open http://localhost:3000 in your browser.
 
-## Project Structure
-
-```
-/
-├── content/          # Your .md files go here
-├── src/          # Build and dev scripts
-│   ├── build.js      # Production build script
-│   ├── server.js     # Dev server with live reload
-│   ├── live-reload.js # Client-side SSE live reload
-│   └── lib/              # Shared build utilities
-│        └── builder.js    # Async build logic with parallel processing
-├── dist/             # Generated .html files
-├── template.html     # HTML template with placeholders
-└── package.json      # Dependencies: marked, polka, sirv
-```
 
 ## Usage
 
-### Writing Posts
+### Content Writing
 
 1. Create a `.md` file in the `content/` folder
 2. Run `npm run build` or `npm run dev`
@@ -77,10 +61,10 @@ Run `npm run build` to generate HTML files, then deploy the `dist/` folder to an
 - HTML template with `{{title}}` and `{{content}}` placeholders
 - Includes basic styling for clean typography
 
-**lib/builder.js**:
+**builder.js**:
 - Async build logic with parallel file processing
 
-**server.js**:
+**dev.js**:
 - Dev server built with Polka - Handles range requests, path traversal protection, index fallbacks
 - Static file serving via `sirv` with automatic MIME types, caching, and security
 - Watches `content/` and rebuilds changed files
