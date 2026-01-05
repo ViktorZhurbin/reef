@@ -50,7 +50,7 @@ export async function buildSingle(mdFileName, options = {}) {
 
 	try {
 		if (logOnStart) {
-			console.log(
+			console.info(
 				`Writing ${OUTPUT_DIR}/${htmlFileName} ${ColorLog.dim(`from ${CONTENT_DIR}/${mdFileName}`)}`,
 			);
 		}
@@ -67,7 +67,7 @@ export async function buildSingle(mdFileName, options = {}) {
 
 		if (logOnSuccess) {
 			const buildTime = msToSeconds(performance.now() - startTime);
-			console.log(ColorLog.green(`Wrote ${htmlFileName} in ${buildTime}`));
+			console.info(ColorLog.green(`Wrote ${htmlFileName} in ${buildTime}`));
 		}
 		return true;
 	} catch (err) {
@@ -133,11 +133,11 @@ export async function buildAll(options = {}) {
 		`Wrote ${successCount} files in ${buildTime}`,
 	);
 	if (failCount > 0) {
-		console.log(
+		console.info(
 			`${successMessage} ${ColorLog.yellow(`(${failCount} failed)`)}`,
 		);
 	} else {
-		console.log(successMessage);
+		console.info(successMessage);
 	}
 }
 

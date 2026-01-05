@@ -32,13 +32,13 @@ const liveReloadScript = `<script>\n${liveReloadJs}\n</script>`;
 // Initial build
 await buildAll({ injectScript: liveReloadScript });
 
-console.log("Watching...");
-console.log(`Server at ${ColorLog.cyan(`http://localhost:${PORT}`)}`);
+console.info("Watching...");
+console.info(`Server at ${ColorLog.cyan(`http://localhost:${PORT}`)}`);
 
 // NOTE: No defensive error handling - fails fast if CONTENT_DIR missing
 const watcher = fs.watch(CONTENT_DIR, async (_, filename) => {
 	if (filename?.endsWith(".md")) {
-		console.log(`${ColorLog.dim("File changed:")} ${CONTENT_DIR}/${filename}`);
+		console.info(`${ColorLog.dim("File changed:")} ${CONTENT_DIR}/${filename}`);
 		await buildSingle(filename, {
 			injectScript: liveReloadScript,
 			logOnSuccess: true,

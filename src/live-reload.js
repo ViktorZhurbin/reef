@@ -2,12 +2,12 @@
 const events = new EventSource("/events");
 
 events.onopen = () => {
-	console.log("[Live Reload] Connected");
+	console.info("[Live Reload] Connected");
 };
 
 events.onmessage = (event) => {
 	if (event.data === "reload") {
-		console.log("[Live Reload] Reloading page...");
+		console.info("[Live Reload] Reloading page...");
 		location.reload();
 	}
 };
