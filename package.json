@@ -6,11 +6,18 @@
 	"engines": {
 		"node": ">=24.0.0"
 	},
+	"bin": {
+		"micro-blog": "./bin/micro-blog"
+	},
+	"files": [
+		"bin/",
+		"lib/"
+	],
 	"scripts": {
-		"build": "node src/build.js",
-		"dev": "node src/server.js",
+		"build": "bin/micro-blog build",
+		"dev": "bin/micro-blog",
 		"format": "biome format --write",
-		"loc": "find src -type f | xargs wc -l"
+		"loc": "find lib -type f | xargs wc -l"
 	},
 	"dependencies": {
 		"marked": "^12.0.0",

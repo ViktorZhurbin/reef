@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if [ "$1" = "build" ]; then
+  exec node "$(dirname "$0")/../lib/build.js"
+else
+  exec node "$(dirname "$0")/../lib/dev.js"
+fi
