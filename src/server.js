@@ -1,5 +1,6 @@
 import { EventEmitter } from "node:events";
 import fs from "node:fs";
+import fsPromises from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
 import { styleText } from "node:util";
@@ -35,25 +36,27 @@ await buildAll({ injectScript: liveReloadScript });
 console.info("Watching...");
 console.info(`Server at ${styleText("cyan", `http://localhost:${PORT}`)}`);
 
-// NOTE: No defensive error handling - fails fast if CONTENT_DIR missing
-const watcher = fs.watch(CONTENT_DIR, async (_, filename) => {
-	if (filename?.endsWith(".md")) {
-		console.info(
-			`${styleText("gray", "File changed:")} ${CONTENT_DIR}/${filename}`,
-		);
-		await buildSingle(filename, {
-			injectScript: liveReloadScript,
-			logOnSuccess: true,
-		});
-		reloadEmitter.emit("reload");
+(async () => {
+	try {
+		const watcher = fsPromises.watch(CONTENT_DIR);
+		for await (const event of watcher) {
+			if (event.filename?.endsWith(".md")) {
+				console.info(
+					`${styleText("gray", "File changed:")} ${CONTENT_DIR}/${event.filename}`,
+				);
+				await buildSingle(event.filename, {
+					injectScript: liveReloadScript,
+					logOnSuccess: true,
+				});
+				reloadEmitter.emit("reload");
+			}
+		}
+	} catch (err) {
+		console.warn(`Watch error: ${err.message}`);
 	}
-});
+})();
 
-watcher.on("error", (err) => {
-	console.warn(`Watch error: ${err.message}`);
-});
-
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
 	// Server-Sent Events endpoint for live reload
 	if (req.url === "/events") {
 		res.writeHead(200, {
@@ -61,40 +64,37 @@ const server = http.createServer((req, res) => {
 			"Cache-Control": "no-cache",
 		});
 
-		// Listen for reload events and notify client
 		const onReload = () => {
 			try {
 				res.write("data: reload\n\n");
 			} catch {
-				// Connection closed, cleanup handled by 'close' event
+				/* connection closed */
 			}
 		};
 		reloadEmitter.on("reload", onReload);
-
-		// Cleanup on client disconnect
-		req.on("close", () => {
-			reloadEmitter.off("reload", onReload);
-		});
-
+		req.on("close", () => reloadEmitter.off("reload", onReload));
 		return;
 	}
 
-	// Serve HTML files
-	let filePath = req.url === "/" ? "/index.html" : req.url;
-	filePath = path.join(OUTPUT_DIR, filePath);
+	// Ignore browser metadata/hidden files
+	if (req.url.startsWith("/.") || req.url === "/favicon.ico") {
+		res.writeHead(404);
+		res.end();
+		return;
+	}
 
-	fs.readFile(filePath, (err, data) => {
-		if (err) {
-			res.writeHead(404);
-			res.end("404 Not Found");
-			return;
-		}
+	try {
+		const filePathBase = req.url === "/" ? "/index.html" : req.url;
+		const data = await fsPromises.readFile(path.join(OUTPUT_DIR, filePathBase));
 		res.writeHead(200, { "Content-Type": "text/html" });
 		res.end(data);
-	});
+	} catch (err) {
+		console.error(err.message);
+		res.writeHead(404);
+		res.end("404 Not Found");
+	}
 });
 
-// NOTE: Minimal error handling - let failures be visible
 server.listen(PORT);
 
 server.on("error", (err) => {
