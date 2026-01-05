@@ -1,11 +1,15 @@
 {
-	"permissions": {
-		"allow": [
-			"Bash(git log:*)",
-			"Bash(git diff:*)",
-			"Bash(npm run build:*)",
-			"Bash(git stash:*)",
-			"Bash(cat:*)"
-		]
-	}
+  "permissions": {
+    "allow": [
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(npm run build:*)",
+      "Bash(git stash:*)",
+      "Bash(cat:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill -9)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ]
+  }
 }
