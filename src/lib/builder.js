@@ -1,7 +1,7 @@
-import fs from "fs";
-import fsPromises from "fs/promises";
+import fs from "node:fs";
+import fsPromises from "node:fs/promises";
+import path from "node:path";
 import { marked } from "marked";
-import path from "path";
 import { ColorLog } from "./colorLog.js";
 
 // Shared constants
