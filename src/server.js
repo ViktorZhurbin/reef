@@ -1,5 +1,4 @@
 import { EventEmitter } from "node:events";
-import fs from "node:fs";
 import fsPromises from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
@@ -20,7 +19,7 @@ const reloadEmitter = new EventEmitter();
 // Read live reload script and wrap in <script> tag
 let liveReloadJs;
 try {
-	liveReloadJs = fs.readFileSync(LIVE_RELOAD_SCRIPT, "utf-8");
+	liveReloadJs = await fsPromises.readFile(LIVE_RELOAD_SCRIPT, "utf-8");
 } catch (err) {
 	console.error(
 		`Failed to read live reload script: ${LIVE_RELOAD_SCRIPT}`,

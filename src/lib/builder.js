@@ -1,4 +1,3 @@
-import fs from "node:fs";
 import fsPromises from "node:fs/promises";
 import path from "node:path";
 import { styleText } from "node:util";
@@ -14,7 +13,7 @@ const formatMs = (ms) => `${Math.round(ms)}ms`;
 // Read template once at module load
 let template;
 try {
-	template = fs.readFileSync(TEMPLATE_FILE, "utf-8");
+	template = await fsPromises.readFile(TEMPLATE_FILE, "utf-8");
 } catch (err) {
 	console.error(`Failed to read template file: ${TEMPLATE_FILE}`, err.message);
 	process.exit(1);
