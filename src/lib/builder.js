@@ -99,23 +99,14 @@ export async function buildAll(options = {}) {
 	}
 
 	// Read all .md files and build them in parallel
-	let allFiles;
-	try {
-		allFiles = await fsPromises.readdir(CONTENT_DIR);
-	} catch (err) {
-		console.error(
-			`Failed to read content directory: ${CONTENT_DIR}`,
-			err.message,
-		);
-		process.exit(1);
-	}
-
-	// Filter and build in a single iteration
-	const buildPromises = allFiles.flatMap((file) => {
-		if (!file.endsWith(".md")) return [];
-
-		return buildSingle(file, { injectScript, logOnStart: verbose });
-	});
+	const buildPromises = await Array.fromAsync(
+		fsPromises.glob(path.join(CONTENT_DIR, "*.md")),
+		(filePath) =>
+			buildSingle(path.basename(filePath), {
+				injectScript,
+				logOnStart: verbose,
+			}),
+	);
 
 	if (buildPromises.length === 0) {
 		console.warn(`No markdown files found in ${CONTENT_DIR}`);
