@@ -1,77 +1,50 @@
 # Micro Blog
 
-A minimal markdown-to-HTML blog generator that happens to work.
+A minimal markdown-to-HTML generator that happens to work.
+
+Exploring what it takes to build a minimal static site generator tool. Ended up with roughly 150 LOC of actual logic.
 
 
 ## Features
 
 ✓ Converts markdown files to HTML
-✓ Dev server with live reload via SSE
 
-
-## Philosophy & Constraints
-
-This project explores what's needed for a minimal static site generator that doesn't suck. It's an exercise in balancing simplicity and decent DX.
-
-### Core Principles
-1. **Keep it simple** - Just convert `.md` > `.html`
-2. **Keep it small** - No edge case coverage, no scope creep. Only use dependencies with high benefits/size ratio
-3. **Keep it readable** - No "hacks" to reduce LOC
-4. **Good DX** - Nice logging, proper error handling, live reload, etc
-5. **No defensive programming** - Startup failures crash with native errors. Runtime failures degrade gracefully only where expected
-
-**Bloat detection:** So far `src/` folder is under 250 lines of code (`npm run loc`). Keep it low, but not at the expense of the core principles above.
+✓ Dev server with live reload
 
 
 ## Quick Start
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
+
+# Run dev server
+pnpm dev
 
 # Build static HTML files
-npm run build
-
-# Run dev server with live reload
-npm run dev
+pnpm build
 ```
-
-Then open http://localhost:3000 in your browser.
 
 
 ## Usage
 
-### Content Writing
+See example in `packages/website/`.
 
-1. Create a `.md` file in the `content/` folder
-2. Run `npm run build` or `npm run dev`
-3. Find your HTML in `dist/`
+### Requirements
 
-### Development
+At the root of the project add `content/` folder with `.md` files, and a `template.html` with `{{title}}` and `{{content}}` placeholders.
 
-The dev server watches for changes in `content/` and automatically rebuilds.
-
-### Production
-
-Run `npm run build` to generate HTML files, then deploy the `dist/` folder to any static host.
 
 ## How It Works
-
-**template.html**:
-- HTML template with `{{title}}` and `{{content}}` placeholders
-- Includes basic styling for clean typography
 
 **builder.js**:
 - Async build logic with parallel file processing
 
 **dev.js**:
-- Dev server built with Polka - Handles range requests, path traversal protection, index fallbacks
-- Static file serving via `sirv` with automatic MIME types, caching, and security
-- Watches `content/` and rebuilds changed files
-- SSE endpoint at `/events` for live reload
-
+- Dev server serving static files
+- Watches `content/`, rebuilds and reloads page on file change
 
 **live-reload.js**:
-- Client-side script using EventSource API
-- Connects to `/events` endpoint for real-time updates
+- Client-side script for live reload in dev mode
+- Connects to `/events` endpoint of dev server for real-time updates
 - Automatically reloads page when server pushes 'reload' event
