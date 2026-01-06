@@ -1,6 +1,6 @@
 {
 	"name": "@vktrz/bare-static",
-	"version": "1.0.1",
+	"version": "1.0.3",
 	"description": "Minimal markdown to HTML static site generator",
 	"repository": {
 		"type": "git",
@@ -25,5 +25,17 @@
 		"marked": "^12.0.0",
 		"polka": "^0.5.2",
 		"sirv": "^3.0.2"
-	}
+	},
+	"keywords": [
+		"minimal",
+		"minimalist",
+		"static-site-generator",
+		"static-site",
+		"ssg",
+		"documentation",
+		"website",
+		"blog",
+		"html",
+		"markdown"
+	]
 }
