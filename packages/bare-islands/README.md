@@ -6,9 +6,9 @@ Plugin for [@vktrz/bare-static](https://www.npmjs.com/package/@vktrz/bare-static
 
 The bare-islands plugin automatically:
 
-- Discovers web component files in your `./components` directory
+- Discovers `*.component.js` files in your `./components` directory
 - Copies them to the build output
-- Injects `<script>` tags into your pages
+- Injects `<script>` tags only on pages that use them
 - Handles dependency copying (like bare-signals)
 
 This keeps the core SSG minimal while providing interactive capabilities for those who need them.
@@ -31,10 +31,10 @@ export default {
 };
 ```
 
-Create your web components in `./components/`:
+Create your web components in `./components/` using the `*.component.js` naming pattern:
 
 ```javascript
-// components/counter.js
+// components/counter.component.js
 import { createSignal, createEffect } from "/vendor/bare-signals.js";
 
 class CounterComponent extends HTMLElement {
@@ -75,10 +75,34 @@ bareIslands({
 
 The plugin uses the bare-static plugin system with two hooks:
 
-- **`onBuild()`** - Discovers `.js` files in components directory and copies them to `dist/components/`
-- **`getScripts()`** - Returns `<script type="module">` tags for each discovered component
+- **`onBuild()`** - Discovers `*.component.js` files in components directory and copies them to `dist/components/`
+- **`getScripts()`** - Analyzes each page's content and returns `<script type="module">` tags **only for components used on that page**
 
-These script tags are injected into the `<head>` of every page during build.
+### Smart Component Loading
+
+The plugin automatically detects which components are used on each page by scanning for custom element tags (tags with hyphens like `<counter-component>`). Only the necessary scripts are injected, improving performance by avoiding unused JavaScript.
+
+**Example:**
+
+- `index.md` contains `<counter-component>` → gets counter.component.js script
+- `about.md` has no components → gets no component scripts
+
+This "islands architecture" means interactive components are loaded only where needed.
+
+### Component Naming Convention
+
+Component files **must** use the `*.component.js` naming pattern. The file name (minus `.component.js`) becomes the element name:
+
+- `counter.component.js` → `<counter-component>`
+- `my-widget.component.js` → `<my-widget-component>`
+
+**Files ignored (won't be copied):**
+
+- `utils.js` - no `.component.js` suffix
+- `helpers.js` - no `.component.js` suffix
+- `counter.test.js` - no `.component.js` suffix
+
+This ensures only actual components are included in your build, keeping it clean and performant.
 
 ## Requirements
 

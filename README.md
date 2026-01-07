@@ -79,7 +79,8 @@ export function myPlugin(options = {}) {
 		},
 
 		// Returns script tags to inject into pages
-		async getScripts({ outputDir }) {
+		async getScripts({ pageContent }) {
+			// pageContent is the markdown source for the current page
 			return ['<script src="/my-script.js"></script>'];
 		},
 	};

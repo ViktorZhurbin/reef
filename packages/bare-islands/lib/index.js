@@ -5,6 +5,37 @@ const COMPONENTS_DIR = "components";
 const OUTPUT_DIR = "dist";
 
 /**
+ * Detect custom element tags in content
+ * Custom elements always contain a hyphen (e.g., <counter-component>)
+ * @param {string} content - Markdown or HTML content
+ * @returns {Set<string>} Set of custom element tag names
+ */
+function detectCustomElements(content) {
+	// Match opening tags with hyphens: <tag-name> or <tag-name attr="value">
+	const tagPattern = /<([a-z][a-z0-9]*-[a-z0-9-]*)/gi;
+	const matches = content.matchAll(tagPattern);
+	const elementNames = new Set();
+
+	for (const match of matches) {
+		elementNames.add(match[1].toLowerCase());
+	}
+
+	return elementNames;
+}
+
+/**
+ * Map component file name to element name
+ * counter.component.js → counter-component
+ * my-widget.component.js → my-widget-component
+ * @param {string} fileName - Component file name
+ * @returns {string} Element name
+ */
+function getElementName(fileName) {
+	// Remove .component.js extension
+	return fileName.replace(/\.component\.js$/, "-component");
+}
+
+/**
  * Bare Islands Plugin
  * Enables interactive islands architecture by discovering and injecting web components
  *
@@ -30,15 +61,15 @@ export function bareIslands(options = {}) {
 			// Copy components directory if it exists and has files
 			try {
 				const files = await fsPromises.readdir(componentsDir);
-				const jsFiles = files.filter((f) => f.endsWith(".js"));
+				const componentFiles = files.filter((f) => f.endsWith(".component.js"));
 
-				if (!jsFiles.length) return;
+				if (!componentFiles.length) return;
 
 				await fsPromises.mkdir(path.join(outputDir, componentsDir), {
 					recursive: true,
 				});
 
-				for (const fileName of jsFiles) {
+				for (const fileName of componentFiles) {
 					try {
 						await fsPromises.copyFile(
 							path.join(componentsDir, fileName),
@@ -81,12 +112,23 @@ export function bareIslands(options = {}) {
 
 		/**
 		 * Hook: Returns script tags to inject into pages
+		 * Only injects scripts for components actually used on the page
 		 * @param {Object} context - Script context
-		 * @param {string} context.outputDir - The output directory path
+		 * @param {string} context.pageContent - The markdown content of the page
 		 * @returns {Promise<string[]>} Array of script tag strings
 		 */
-		async getScripts({ outputDir }) {
-			return discoveredComponents.map(
+		async getScripts({ pageContent }) {
+			// Detect which custom elements are used on this page
+			const usedElements = detectCustomElements(pageContent);
+
+			// Filter components to only those used on this page
+			const usedComponents = discoveredComponents.filter(({ file }) => {
+				const elementName = getElementName(file);
+				return usedElements.has(elementName);
+			});
+
+			// Return script tags only for used components
+			return usedComponents.map(
 				({ dir, file }) =>
 					`<script type="module" src="/${dir}/${file}"></script>`,
 			);

@@ -36,11 +36,11 @@ function generateHtml(title, content, injectScript = "") {
 
 /**
  * @param {string} mdFileName
- * @param {{injectScript?: string, logOnSuccess?: boolean, logOnStart?: boolean}} [options]
+ * @param {{injectScript?: string, logOnSuccess?: boolean, logOnStart?: boolean, plugins?: Array}} [options]
  * @returns {Promise<boolean>}
  */
 export async function buildSingle(mdFileName, options = {}) {
-	const { injectScript = "", logOnSuccess, logOnStart } = options;
+	const { injectScript = "", logOnSuccess, logOnStart, plugins = [] } = options;
 	const startTime = performance.now();
 
 	const title = mdFileName.replace(".md", "");
@@ -58,7 +58,22 @@ export async function buildSingle(mdFileName, options = {}) {
 			"utf-8",
 		);
 		const contentHtml = marked(markdown);
-		const pageHtml = generateHtml(title, contentHtml, injectScript);
+
+		// Get per-page scripts from plugins
+		let pluginScripts = [];
+		for (const plugin of plugins) {
+			if (plugin.getScripts) {
+				const scripts = await plugin.getScripts({ pageContent: markdown });
+				pluginScripts.push(...scripts);
+			}
+		}
+
+		// Combine plugin scripts with injected scripts
+		const combinedScripts = [...pluginScripts, injectScript]
+			.filter(Boolean)
+			.join("\n");
+
+		const pageHtml = generateHtml(title, contentHtml, combinedScripts);
 
 		const htmlFilePath = path.join(OUTPUT_DIR, htmlFileName);
 		await fsPromises.writeFile(htmlFilePath, pageHtml);
@@ -90,15 +105,10 @@ export async function buildAll(options = {}) {
 	// Merge plugins from config and options
 	const allPlugins = [...(config?.plugins || []), ...plugins];
 
-	// Run plugin hooks
-	let pluginScripts = [];
+	// Run plugin onBuild hooks (for file copying, etc.)
 	for (const plugin of allPlugins) {
 		if (plugin.onBuild) {
 			await plugin.onBuild({ outputDir: OUTPUT_DIR, contentDir: CONTENT_DIR });
-		}
-		if (plugin.getScripts) {
-			const scripts = await plugin.getScripts({ outputDir: OUTPUT_DIR });
-			pluginScripts.push(...scripts);
 		}
 	}
 
@@ -107,11 +117,9 @@ export async function buildAll(options = {}) {
 		fsPromises.glob(path.join(CONTENT_DIR, "*.md")),
 		(filePath) =>
 			buildSingle(path.basename(filePath), {
-				// Combine plugin scripts with any additional injected scripts (e.g., live reload)
-				injectScript: [...pluginScripts, injectScript]
-					.filter(Boolean)
-					.join("\n"),
+				injectScript,
 				logOnStart: verbose,
+				plugins: allPlugins,
 			}),
 	);
 
