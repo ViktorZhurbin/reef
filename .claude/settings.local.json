@@ -14,7 +14,7 @@
       "Bash(pnpm:*)",
       "Bash(npm info:*)",
       "Bash(mkdir:*)",
-      "Bash(node test:*.js)"
+      "Bash(npm test:*)"
     ]
   }
 }

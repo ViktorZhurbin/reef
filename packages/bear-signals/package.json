@@ -1,31 +1,30 @@
 {
 	"name": "@vktrz/bear-signals",
 	"version": "0.0.1",
-	"description": "Minimal signals library",
+	"description": "Educational implementation of signals inspired by Solid.js",
+	"type": "module",
+	"main": "./lib/index.js",
+	"exports": {
+		".": "./lib/index.js"
+	},
+	"scripts": {
+		"test": "node --test tests/**/*.test.js"
+	},
+	"files": [
+		"lib/"
+	],
+	"keywords": [
+		"signals",
+		"reactivity",
+		"solid",
+		"learning"
+	],
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/ViktorZhurbin/bare-static.git",
 		"directory": "packages/bear-signals"
 	},
-	"type": "module",
 	"engines": {
 		"node": ">=24.0.0"
-	},
-	"files": [
-		"lib/"
-	],
-	"main": "./lib/index.js",
-	"types": "./lib/index.d.ts",
-	"exports": {
-		".": {
-			"types": "./lib/index.d.ts",
-			"default": "./lib/index.js"
-		}
-	},
-	"keywords": [
-		"signals",
-		"reactivity",
-		"state",
-		"minimal"
-	]
+	}
 }
