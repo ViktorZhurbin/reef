@@ -1,4 +1,4 @@
-# Bear Signals
+# Bare Signals
 
 Primitive implementation of reactive signals inspired by [Solid.js](https://github.com/solidjs/solid/blob/main/packages/solid/src/reactive/signal.ts).
 
@@ -13,7 +13,7 @@ Built as a learning project to understand how fine-grained reactivity works unde
 ## Usage
 
 ```js
-import { createSignal, createEffect, createMemo } from '@vktrz/bear-signals';
+import { createSignal, createEffect, createMemo } from '@vktrz/bare-signals';
 
 const [count, setCount] = createSignal(0);
 const doubled = createMemo(() => count() * 2);

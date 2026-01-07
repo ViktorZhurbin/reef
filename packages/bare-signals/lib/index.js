@@ -1,5 +1,5 @@
 /**
- * BEAR SIGNALS - Educational Reactive System
+ * BARE SIGNALS - Educational Reactive System
  *
  * How it works:
  *
