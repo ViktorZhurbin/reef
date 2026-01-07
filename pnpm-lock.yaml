@@ -24,6 +24,8 @@ importers:
         specifier: ^3.0.2
         version: 3.0.2
 
+  packages/bear-signals: {}
+
   packages/website:
     dependencies:
       '@vktrz/bare-static':
