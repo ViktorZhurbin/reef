@@ -27,7 +27,7 @@ importers:
         specifier: ^3.0.2
         version: 3.0.2
 
-  packages/bare-static:
+  packages/core:
     dependencies:
       marked:
         specifier: ^12.0.0
@@ -46,7 +46,7 @@ importers:
         version: link:../bare-islands
       '@vktrz/bare-static':
         specifier: workspace:*
-        version: link:../bare-static
+        version: link:../core
 
 packages:
 
