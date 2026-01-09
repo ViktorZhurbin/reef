@@ -1,5 +1,10 @@
 Read the README file
 
+## IMPORTANT
+
+This is an experimental personal project for now. No need to take care of backward compatibility and maintaining legacy logic
+
+
 ## Core Principles
 
 1. **Keep it simple** - No scope creep, only things that are useful (and fun)
@@ -10,6 +15,4 @@ Read the README file
 
 **Bloat detection:** Watch out for LOC count (check with `npm run loc`), but not at the expense of the core principles above.
 
-## IMPORTANT
 
-This is an experimental personal project for now. No need to take care of backward compatibility

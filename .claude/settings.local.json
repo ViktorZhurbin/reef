@@ -17,7 +17,8 @@
 			"Bash(npm test:*)",
 			"Bash(cp:*)",
 			"Bash(npm run build:*)",
-			"Bash(npm run loc:*)"
+			"Bash(npm run loc:*)",
+			"Bash(git push:*)"
 		]
 	}
 }

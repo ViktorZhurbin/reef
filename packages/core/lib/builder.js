@@ -59,6 +59,15 @@ export async function buildSingle(mdFileName, options = {}) {
 		);
 		const contentHtml = marked(markdown);
 
+		// Get import maps from plugins (must come before module scripts)
+		let importMaps = [];
+		for (const plugin of plugins) {
+			if (plugin.getImportMap) {
+				const importMap = await plugin.getImportMap();
+				if (importMap) importMaps.push(importMap);
+			}
+		}
+
 		// Get per-page scripts from plugins
 		let pluginScripts = [];
 		for (const plugin of plugins) {
@@ -68,12 +77,12 @@ export async function buildSingle(mdFileName, options = {}) {
 			}
 		}
 
-		// Combine plugin scripts with injected scripts
-		const combinedScripts = [...pluginScripts, injectScript]
+		// Combine import maps, plugin scripts, and injected scripts
+		const allScripts = [...importMaps, ...pluginScripts, injectScript]
 			.filter(Boolean)
 			.join("\n");
 
-		const pageHtml = generateHtml(title, contentHtml, combinedScripts);
+		const pageHtml = generateHtml(title, contentHtml, allScripts);
 
 		const htmlFilePath = path.join(OUTPUT_DIR, htmlFileName);
 		await fsPromises.writeFile(htmlFilePath, pageHtml);

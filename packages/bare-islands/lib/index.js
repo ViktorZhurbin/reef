@@ -1,113 +1,63 @@
 import fsPromises from "node:fs/promises";
 import path from "node:path";
+import {
+	detectCustomElements,
+	generateScriptTag,
+	getElementName,
+} from "@vktrz/bare-static/plugin-utils";
+import { compileJSXIsland } from "./jsx-compiler.js";
 
-const COMPONENTS_DIR = "components";
+const DEFAULT_ISLANDS_DIR = "islands";
 const OUTPUT_DIR = "dist";
 
 /**
- * Detect custom element tags in content
- * Custom elements always contain a hyphen (e.g., <counter-component>)
- * @param {string} content - Markdown or HTML content
- * @returns {Set<string>} Set of custom element tag names
- */
-function detectCustomElements(content) {
-	// Match opening tags with hyphens: <tag-name> or <tag-name attr="value">
-	const tagPattern = /<([a-z][a-z0-9]*-[a-z0-9-]*)/gi;
-	const matches = content.matchAll(tagPattern);
-	const elementNames = new Set();
-
-	for (const match of matches) {
-		elementNames.add(match[1].toLowerCase());
-	}
-
-	return elementNames;
-}
-
-/**
- * Map component file name to element name
- * counter.component.js → counter-component
- * my-widget.component.js → my-widget-component
- * @param {string} fileName - Component file name
- * @returns {string} Element name
- */
-function getElementName(fileName) {
-	// Remove .component.js extension
-	return fileName.replace(/\.component\.js$/, "-component");
-}
-
-/**
  * Bare Islands Plugin
- * Enables interactive islands architecture by discovering and injecting web components
+ * Enables interactive islands architecture with Solid.js JSX components
  *
- * @param {Object} options
- * @param {string} [options.componentsDir] - Your components folder
+ * @param {Object} options - Plugin configuration
+ * @param {string} [options.islandsDir] - Directory containing JSX islands
  * @returns {Object} Plugin instance with hooks
  */
 export function bareIslands(options = {}) {
-	const componentsDir = options.componentsDir || COMPONENTS_DIR;
+	const { islandsDir = DEFAULT_ISLANDS_DIR } = options;
+
 	let discoveredComponents = [];
 
 	return {
 		name: "bare-islands",
 
+		// Watch islands directory for changes in dev mode
+		watchDirs: [islandsDir],
+
 		/**
-		 * Hook: Called during build to copy component files and dependencies
+		 * Hook: Called during build to discover, compile, and copy components
 		 * @param {Object} context - Build context
-		 * @param {string} [context.outputDir] - The output directory path
+		 * @param {string} context.outputDir - The output directory path
 		 */
 		async onBuild({ outputDir = OUTPUT_DIR }) {
 			discoveredComponents = [];
 
-			// Copy components directory if it exists and has files
-			try {
-				const files = await fsPromises.readdir(componentsDir);
-				const componentFiles = files.filter((f) => f.endsWith(".component.js"));
+			// Process JSX islands
+			await processIslands(islandsDir, outputDir, discoveredComponents);
+		},
 
-				if (!componentFiles.length) return;
+		/**
+		 * Hook: Returns import map for Solid.js runtime from CDN
+		 * @returns {Promise<string|null>} Import map script tag or null
+		 */
+		async getImportMap() {
+			if (discoveredComponents.length === 0) return null;
 
-				await fsPromises.mkdir(path.join(outputDir, componentsDir), {
-					recursive: true,
-				});
+			const importMap = {
+				imports: {
+					"solid-js": "https://esm.sh/solid-js",
+					"solid-js/web": "https://esm.sh/solid-js/web",
+					"solid-js/h/jsx-runtime": "https://esm.sh/solid-js/h/jsx-runtime",
+					"solid-element": "https://esm.sh/solid-element",
+				},
+			};
 
-				for (const fileName of componentFiles) {
-					try {
-						await fsPromises.copyFile(
-							path.join(componentsDir, fileName),
-							path.join(outputDir, componentsDir, fileName),
-						);
-
-						// Track discovered components for script generation
-						discoveredComponents.push({
-							dir: componentsDir,
-							file: fileName,
-						});
-					} catch (err) {
-						throw new Error(
-							`Failed to copy component ${fileName}: ${err.message}`,
-						);
-					}
-				}
-
-				// Copy bare-signals from package if it exists
-				const bareSignalsSource = "../bare-signals/lib/index.js";
-				try {
-					await fsPromises.access(bareSignalsSource);
-					const vendorDir = path.join(outputDir, "vendor");
-					await fsPromises.mkdir(vendorDir, { recursive: true });
-					await fsPromises.copyFile(
-						bareSignalsSource,
-						path.join(vendorDir, "bare-signals.js"),
-					);
-				} catch {
-					// bare-signals package not found, skip (user will handle dependencies)
-				}
-			} catch (err) {
-				// If it's ENOENT (directory doesn't exist), silently skip - nothing to do
-				if (err.code === "ENOENT") return;
-
-				// Otherwise, it's a real error - rethrow it
-				throw err;
-			}
+			return `<script type="importmap">${JSON.stringify(importMap, null, 2)}</script>`;
 		},
 
 		/**
@@ -122,16 +72,64 @@ export function bareIslands(options = {}) {
 			const usedElements = detectCustomElements(pageContent);
 
 			// Filter components to only those used on this page
-			const usedComponents = discoveredComponents.filter(({ file }) => {
-				const elementName = getElementName(file);
-				return usedElements.has(elementName);
-			});
+			const usedComponents = discoveredComponents.filter(({ elementName }) =>
+				usedElements.has(elementName),
+			);
 
 			// Return script tags only for used components
-			return usedComponents.map(
-				({ dir, file }) =>
-					`<script type="module" src="/${dir}/${file}"></script>`,
+			return usedComponents.map(({ outputPath }) =>
+				generateScriptTag(outputPath),
 			);
 		},
 	};
+}
+
+/**
+ * Process JSX island files - compile with esbuild and wrap in web components
+ * @param {string} islandsDir - Islands directory
+ * @param {string} outputDir - Output directory
+ * @param {Array} discoveredComponents - Array to track discovered components
+ */
+async function processIslands(islandsDir, outputDir, discoveredComponents) {
+	try {
+		const files = await fsPromises.readdir(islandsDir);
+		const jsxFiles = files.filter(
+			(f) => f.endsWith(".jsx") || f.endsWith(".tsx"),
+		);
+
+		if (jsxFiles.length === 0) return;
+
+		const outputComponentsDir = path.join(outputDir, "components");
+		await fsPromises.mkdir(outputComponentsDir, { recursive: true });
+
+		for (const fileName of jsxFiles) {
+			const extension = path.extname(fileName);
+			const elementName = getElementName(fileName);
+			const outputFileName = fileName.replace(extension, ".js");
+
+			try {
+				const sourcePath = path.join(islandsDir, fileName);
+
+				console.log({ sourcePath });
+				await compileJSXIsland({
+					sourcePath,
+					outputPath: path.join(outputComponentsDir, outputFileName),
+					elementName,
+				});
+
+				discoveredComponents.push({
+					type: "island",
+					sourceDir: islandsDir,
+					sourceFile: fileName,
+					elementName,
+					outputPath: `/components/${outputFileName}`,
+				});
+			} catch (err) {
+				throw new Error(`Failed to process island ${fileName}: ${err.message}`);
+			}
+		}
+	} catch (err) {
+		if (err.code === "ENOENT") return;
+		throw err;
+	}
 }

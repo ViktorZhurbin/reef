@@ -18,13 +18,13 @@ Check out these articles:
 
 ✓ Dev server with live reload
 
-✓ Interactive islands using bare-signals
+✓ Interactive islands using Solid.js JSX
 
 ## Try It Out
 
-Here's an interactive component powered by bare-signals reactivity:
+Here's an interactive Solid.js counter island:
 
-<counter-component></counter-component>
+<counter-component initial="5"></counter-component>
 
 
 ## Quick Start

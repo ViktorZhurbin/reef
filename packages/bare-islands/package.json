@@ -27,6 +27,10 @@
 		"static-site-generator"
 	],
 	"peerDependencies": {
-		"@vktrz/bare-static": "^1.0.0"
+		"@vktrz/bare-static": "workspace:*",
+		"solid-js": "^1.9.0"
+	},
+	"dependencies": {
+		"esbuild": "^0.27.2"
 	}
 }
