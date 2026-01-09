@@ -1,25 +1,18 @@
-# Welcome to Bare Static
+# bare-static
 
-A minimal markdown-to-HTML generator that happens to work.
+A minimal markdown-based static site generator with optional interactive islands.
 
-Exploring what it takes to build a minimal static site generator tool.
+- **Fast** - Pure markdown, zero JavaScript by default
+- **Simple** - No config, just a directory of `.md` files
+- **Extensible** - Add interactive islands with Preact or Solid.js when needed
+- **Small** - ~30kb total with runtimes
 
-## Recent Posts
+## Plugins
 
-Check out these articles:
+Add interactivity only where you need it:
 
-- [Getting Started with Modern JavaScript](getting-started-with-javascript.html)
-- [Understanding CSS Grid Layout](understanding-css-grid.html)
-
-## Features
-
-✓ Converts markdown files to HTML
-
-✓ Dev server with live reload
-
-✓ Interactive islands using Solid.js JSX
-
-## Try It Out
+- [bare-islands-preact](/bare-islands-preact.html) - Lightweight Preact components (~4kb runtime)
+- [bare-islands-solid](/bare-islands-solid.html) - Reactive Solid.js components (~7kb runtime)
 
 Here's an interactive Solid.js counter island:
 
@@ -31,36 +24,42 @@ Here's a Preact counter island:
 
 ## Quick Start
 
-Install: `npm i @vktrz/bare-static`
-
-Add scripts to `package.json`:
-
-```json
-"scripts": {
-    "dev": "bare-static",
-    "build": "bare-static build"
-}
+```bash
+npm install @vktrz/bare-static
 ```
 
-## Requirements
+Create `bare.config.js`:
 
-At the root of the project, add `content/` folder with `.md` files, and a `template.html` with `{{title}}` and `{{content}}` placeholders.
+```javascript
+export default {
+	plugins: [],
+};
+```
 
-Example: https://github.com/ViktorZhurbin/bare-static/tree/main/packages/website
+Create `content/index.md`:
 
-## How It Works
+```markdown
+# Hello World
 
-**builder.js**:
+This is a static page.
+```
 
-- Async build logic with parallel file processing
+Build:
 
-**dev.js**:
+```bash
+bare-static build
+```
 
-- Dev server serving static files
-- Watches `content/`, rebuilds and reloads page on file change
+Output goes to `dist/`.
 
-**live-reload.js**:
+## Philosophy
 
-- Client-side script for live reload in dev mode
-- Connects to `/events` endpoint of dev server for real-time updates
-- Automatically reloads page when server pushes 'reload' event
+- **Keep it simple** - No scope creep, only what's useful
+- **Keep it small** - No edge case coverage, lean dependencies
+- **Keep it readable** - No "hacks" to reduce LOC
+- **Good DX** - Nice logging, proper error handling, live reload
+- **No defensive programming** - Startup failures crash with native errors
+
+## Learn More
+
+Check out the [plugin documentation](/bare-islands-preact.html) to see how to add interactive components to your pages.
