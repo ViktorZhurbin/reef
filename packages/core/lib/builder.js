@@ -8,6 +8,7 @@ import { loadConfig } from "./config-loader.js";
 export const CONTENT_DIR = "./content";
 export const OUTPUT_DIR = "./dist";
 export const TEMPLATE_FILE = "./template.html";
+export const PUBLIC_DIR = "./public";
 
 const formatMs = (ms) => `${Math.round(ms)}ms`;
 
@@ -111,6 +112,16 @@ export async function buildAll(options = {}) {
 	// Clean up output directory and recreate it
 	await fsPromises.rm(OUTPUT_DIR, { recursive: true, force: true });
 	await fsPromises.mkdir(OUTPUT_DIR, { recursive: true });
+
+	// Copy public directory to output if it exists
+	try {
+		await fsPromises.cp(PUBLIC_DIR, OUTPUT_DIR, { recursive: true });
+	} catch (err) {
+		// Silently skip if public directory doesn't exist
+		if (err.code !== "ENOENT") {
+			throw err;
+		}
+	}
 
 	// Merge plugins from config and options
 	const allPlugins = [...(config?.plugins || []), ...plugins];
