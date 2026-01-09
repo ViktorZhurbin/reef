@@ -60,7 +60,7 @@ export async function buildSingle(mdFileName, options = {}) {
 		const contentHtml = marked(markdown);
 
 		// Get import maps from plugins (must come before module scripts)
-		let importMaps = [];
+		const importMaps = [];
 		for (const plugin of plugins) {
 			if (plugin.getImportMap) {
 				const importMap = await plugin.getImportMap();
@@ -69,7 +69,7 @@ export async function buildSingle(mdFileName, options = {}) {
 		}
 
 		// Get per-page scripts from plugins
-		let pluginScripts = [];
+		const pluginScripts = [];
 		for (const plugin of plugins) {
 			if (plugin.getScripts) {
 				const scripts = await plugin.getScripts({ pageContent: markdown });
@@ -108,7 +108,8 @@ export async function buildAll(options = {}) {
 	const { injectScript = "", verbose = false, plugins = [] } = options;
 	const startTime = performance.now();
 
-	// Create output directory if it doesn't exist
+	// Clean up output directory and recreate it
+	await fsPromises.rm(OUTPUT_DIR, { recursive: true, force: true });
 	await fsPromises.mkdir(OUTPUT_DIR, { recursive: true });
 
 	// Merge plugins from config and options
