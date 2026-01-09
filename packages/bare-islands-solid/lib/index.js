@@ -1,9 +1,6 @@
-import fsPromises from "node:fs/promises";
-import path from "node:path";
 import {
-	detectCustomElements,
-	generateScriptTag,
-	getElementName,
+	generateScriptsForUsedComponents,
+	processJSXIslands,
 } from "@vktrz/bare-static/plugin-utils";
 import { compileJSXIsland } from "./jsx-compiler.js";
 
@@ -38,7 +35,13 @@ export function bareIslandsSolid(options = {}) {
 			discoveredComponents = [];
 
 			// Process JSX islands
-			await processIslands(islandsDir, outputDir, discoveredComponents);
+			await processJSXIslands({
+				islandsDir,
+				outputDir,
+				discoveredComponents,
+				elementSuffix: "-solid",
+				compileIsland: compileJSXIsland,
+			});
 		},
 
 		/**
@@ -67,66 +70,8 @@ export function bareIslandsSolid(options = {}) {
 		 * @returns {Promise<string[]>} Array of script tag strings
 		 */
 		async getScripts({ pageContent }) {
-			// Detect which custom elements are used on this page
-			const usedElements = detectCustomElements(pageContent);
-
-			// Filter components to only those used on this page
-			const usedComponents = discoveredComponents.filter(({ elementName }) =>
-				usedElements.has(elementName),
-			);
-
-			// Return script tags only for used components
-			return usedComponents.map(({ outputPath }) =>
-				generateScriptTag(outputPath),
-			);
+			return generateScriptsForUsedComponents(discoveredComponents, pageContent);
 		},
 	};
 }
 
-/**
- * Process JSX island files - compile with esbuild and wrap in web components
- * @param {string} islandsDir - Islands directory
- * @param {string} outputDir - Output directory
- * @param {Array} discoveredComponents - Array to track discovered components
- */
-async function processIslands(islandsDir, outputDir, discoveredComponents) {
-	try {
-		const files = await fsPromises.readdir(islandsDir);
-		const jsxFiles = files.filter(
-			(f) => f.endsWith(".jsx") || f.endsWith(".tsx"),
-		);
-
-		if (jsxFiles.length === 0) return;
-
-		const outputComponentsDir = path.join(outputDir, "components");
-		await fsPromises.mkdir(outputComponentsDir, { recursive: true });
-
-		for (const fileName of jsxFiles) {
-			const elementName = getElementName(fileName, "-solid");
-			const outputFileName = `${elementName}.js`;
-
-			try {
-				const sourcePath = path.join(islandsDir, fileName);
-
-				await compileJSXIsland({
-					sourcePath,
-					outputPath: path.join(outputComponentsDir, outputFileName),
-					elementName,
-				});
-
-				discoveredComponents.push({
-					type: "island",
-					sourceDir: islandsDir,
-					sourceFile: fileName,
-					elementName,
-					outputPath: `/components/${outputFileName}`,
-				});
-			} catch (err) {
-				throw new Error(`Failed to process island ${fileName}: ${err.message}`);
-			}
-		}
-	} catch (err) {
-		if (err.code === "ENOENT") return;
-		throw err;
-	}
-}

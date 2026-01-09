@@ -15,7 +15,7 @@
 		"bare-static": "./bin/bare-static"
 	},
 	"exports": {
-		"./plugin-utils": "./lib/plugin-utils.js"
+		"./plugin-utils": "./lib/plugin-utils/index.js"
 	},
 	"files": [
 		"bin/",
