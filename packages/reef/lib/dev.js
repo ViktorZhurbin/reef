@@ -92,8 +92,6 @@ const watchDirs = new Set([
 // Watch plugin directories (for components, islands, etc.)
 // Separate watcher from CONTENT_DIR because behavior differs: incremental vs full rebuild
 for (const dir of watchDirs) {
-	if (dir === CONTENT_DIR) continue; // Already watching above
-
 	(async () => {
 		try {
 			const watcher = fsPromises.watch(dir, { recursive: true });

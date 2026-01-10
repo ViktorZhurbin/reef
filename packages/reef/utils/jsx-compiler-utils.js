@@ -23,7 +23,7 @@ export function createBabelPlugin(name, getBabelConfig) {
 					babel.transformAsync(source, {
 						filename: args.path,
 						...babelConfig,
-					})
+					}),
 				);
 
 				return { contents: code, loader: "js" };

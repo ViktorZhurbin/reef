@@ -45,7 +45,7 @@ export async function processJSXIslands({
 		if (err.code === "ENOENT") {
 			console.warn(
 				styleText("red", `Islands directory not found:`),
-				styleText("magenta", islandsDir)
+				styleText("magenta", islandsDir),
 			);
 			return [];
 		}
@@ -102,15 +102,15 @@ export async function processJSXIslands({
 					"green",
 					`✓ Compiled ${compiledIslands.length} island${
 						compiledIslands.length > 1 ? "s" : ""
-					}:`
-				)
+					}:`,
+				),
 			);
 			for (const { sourcePath, elementName } of compiledIslands) {
 				console.info(
 					`  ${styleText("cyan", sourcePath)} → ${styleText(
 						"magenta",
-						`<${elementName}>`
-					)}`
+						`<${elementName}>`,
+					)}`,
 				);
 			}
 		}

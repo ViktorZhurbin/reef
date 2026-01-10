@@ -88,7 +88,7 @@ export async function loadLayouts() {
 
 	// Compile and load each layout
 	for (const fileName of layoutFiles) {
-		const layoutName = fileName.replace(/\.[jt]sx$/, ""); // Strip .jsx/.tsx extension
+		const layoutName = path.basename(fileName, path.extname(fileName));
 		const sourcePath = path.join(LAYOUTS_DIR, fileName);
 		const outputPath = path.join(TEMP_DIR, `${layoutName}.js`);
 

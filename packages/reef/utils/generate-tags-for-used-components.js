@@ -28,11 +28,11 @@ import { generateScriptTag } from "./generate-script-tag.js";
  */
 export function generateTagsForUsedComponents(
 	discoveredComponents,
-	pageContent
+	pageContent,
 ) {
 	const usedComponents = filterUsedComponents(
 		discoveredComponents,
-		pageContent
+		pageContent,
 	);
 	const tags = [];
 

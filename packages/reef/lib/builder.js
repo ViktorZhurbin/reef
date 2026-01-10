@@ -48,8 +48,8 @@ export async function buildSingle(mdFileName, options = {}) {
 			console.info(
 				`Writing ${OUTPUT_DIR}/${htmlFileName} ${styleText(
 					"gray",
-					`from ${mdFilePath}`
-				)}`
+					`from ${mdFilePath}`,
+				)}`,
 			);
 		}
 
@@ -112,7 +112,7 @@ export async function buildSingle(mdFileName, options = {}) {
 	} catch (err) {
 		console.error(
 			`${styleText("gray", "Failed to build")} ${mdFileName}`,
-			err.message
+			err.message,
 		);
 		return false;
 	}
@@ -167,7 +167,7 @@ export async function buildAll(options = {}) {
 				logOnStart: verbose,
 				plugins: allPlugins,
 			});
-		}
+		},
 	);
 
 	if (buildPromises.length === 0) {
@@ -184,11 +184,11 @@ export async function buildAll(options = {}) {
 
 	const successMessage = styleText(
 		"green",
-		`Wrote ${successCount} files in ${buildTime}`
+		`Wrote ${successCount} files in ${buildTime}`,
 	);
 	if (failCount > 0) {
 		console.info(
-			`${successMessage} ${styleText("yellow", `(${failCount} failed)`)}`
+			`${successMessage} ${styleText("yellow", `(${failCount} failed)`)}`,
 		);
 	} else {
 		console.info(successMessage);

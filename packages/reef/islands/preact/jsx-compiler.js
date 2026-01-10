@@ -35,7 +35,6 @@ export async function compileJSXIsland({
 
     // Register component as custom element
     // Empty array = no observed attributes (or infer from propTypes)
-    // shadow: false = no shadow DOM (consistent with Solid version)
     register(Component, '${elementName}', [], { shadow: false });
   `.trim();
 

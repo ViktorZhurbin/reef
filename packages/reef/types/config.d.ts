@@ -2,7 +2,7 @@
  * Configuration file type definitions
  */
 
-import type { ReefPlugin } from './plugin.js';
+import type { ReefPlugin } from "./plugin.js";
 
 /**
  * Reef configuration object (reef.config.js)

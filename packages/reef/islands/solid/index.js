@@ -65,7 +65,7 @@ export function solidIslands(options = {}) {
 			return `<script type="importmap">${JSON.stringify(
 				importMap,
 				null,
-				2
+				2,
 			)}</script>`;
 		},
 

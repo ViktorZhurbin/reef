@@ -2,7 +2,7 @@
  * Build function type definitions
  */
 
-import type { ReefPlugin } from './plugin.js';
+import type { ReefPlugin } from "./plugin.js";
 
 /**
  * Options for building a single markdown file
