@@ -53,9 +53,9 @@ export default {
 Write regular Solid.js and/or Preact code, and add it as interactive "islands" to static pages. 
 You can have components from different frameworks on the same page.
 
-- [plugin-solid](https://github.com/ViktorZhurbin/bare-static/packages/bare-islands-solid)
+- [plugin-solid](https://github.com/ViktorZhurbin/bare-static/tree/main/packages%2Fbare-islands-solid)
 
-- [plugin-preact](https://github.com/ViktorZhurbin/bare-static/packages/bare-islands-preact)
+- [plugin-preact](https://github.com/ViktorZhurbin/bare-static/tree/main/packages%2Fbare-islands-preact)
 
 ### Plugin API
 
