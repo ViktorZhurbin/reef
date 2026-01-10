@@ -21,6 +21,7 @@ Should probably think of a better naming for the core package. And update naming
 
 ### High Priority Docs
 
+- Update and unify plugin docs format
 - [ ] Document JSX component conventions (file naming, props)
 - [ ] Document main conventions (folder structure, naming, config options, templating)
 - [ ] Document web component wrapper pattern
