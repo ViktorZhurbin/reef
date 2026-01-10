@@ -1,16 +1,18 @@
 # Bare Static
 
-A minimal markdown-to-HTML generator that happens to work.
-
-Exploring what it takes to build a minimal static site generator tool.
+A minimalist SSG framework with optional reactivity islands.
 
 ## Features
 
-✓ Converts markdown files to HTML
+✓ Markdown to HTML
+
+✓ JSX to static HTML 
+
+✓ JSX to interactive components (with plugins for Solid.js, Preact)
 
 ✓ Dev server with live reload
 
-✓ Plugin system for extensibility
+✓ Plugins for extensibility (reactivity, code highlight)
 
 ## Quick Start
 
@@ -27,26 +29,11 @@ Add scripts to `package.json`:
 
 ## Requirements
 
+TODO: needs update
+
 At the root of the project, add `content/` folder with `.md` files, and a `template.html` with `{{title}}` and `{{content}}` placeholders.
 
 Example: https://github.com/ViktorZhurbin/bare-static/tree/main/packages/website
-
-## How It Works
-
-**builder.js**:
-
-- Async build logic with parallel file processing
-
-**dev.js**:
-
-- Dev server serving static files
-- Watches `content/`, rebuilds and reloads page on file change
-
-**live-reload.js**:
-
-- Client-side script for live reload in dev mode
-- Connects to `/events` endpoint of dev server for real-time updates
-- Automatically reloads page when server pushes 'reload' event
 
 ## Plugins
 
@@ -54,15 +41,21 @@ Extend bare-static with plugins via `bare.config.js`:
 
 ```javascript
 import { bareIslandsSolid } from "@vktrz/bare-islands-solid";
+import { bareIslandsPreact } from "@vktrz/bare-islands-preact";
 
 export default {
-	plugins: [bareIslandsSolid()],
+	plugins: [bareIslandsSolid(), bareIslandsPreact()],
 };
 ```
 
 ### Available Plugins
 
-**[@vktrz/bare-islands-solid](https://www.npmjs.com/package/@vktrz/bare-islands-solid)** - Interactive "islands" architecture with web components
+Write regular Solid.js and/or Preact code, and add it as interactive "islands" to static pages. 
+You can have components from different frameworks on the same page.
+
+- [plugin-solid](https://github.com/ViktorZhurbin/bare-static/packages/bare-islands-solid)
+
+- [plugin-preact](https://github.com/ViktorZhurbin/bare-static/packages/bare-islands-preact)
 
 ### Plugin API
 
@@ -86,5 +79,3 @@ export function myPlugin(options = {}) {
 	};
 }
 ```
-
-The plugin system is intentionally minimal (~50 LOC) to keep the core lean.
