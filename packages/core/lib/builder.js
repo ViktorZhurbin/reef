@@ -4,6 +4,8 @@ import { styleText } from "node:util";
 import matter from "gray-matter";
 import { marked } from "marked";
 import { CONTENT_DIR, OUTPUT_DIR, PUBLIC_DIR } from "../constants/dir.js";
+import { preactIslands } from "../islands/preact/index.js";
+import { solidIslands } from "../islands/solid/index.js";
 import { loadConfig } from "./config-loader.js";
 import { loadLayouts } from "./layouts.js";
 import { resolveLayout } from "./reef-resolver.js";
@@ -23,6 +25,8 @@ const config = await loadConfig();
 export async function reloadLayouts() {
 	layouts = await loadLayouts();
 }
+
+const defaultPlugins = [solidIslands(), preactIslands];
 
 /**
  * @param {string} mdFileName
@@ -55,10 +59,11 @@ export async function buildSingle(mdFileName, options = {}) {
 
 		// Render markdown to HTML
 		const contentHtml = marked(markdown);
+		const allPlugins = [...defaultPlugins, ...plugins];
 
 		// Get import maps from plugins (must come before module scripts)
 		const importMaps = [];
-		for (const plugin of plugins) {
+		for (const plugin of allPlugins) {
 			if (plugin.getImportMap) {
 				const importMap = await plugin.getImportMap();
 				if (importMap) importMaps.push(importMap);

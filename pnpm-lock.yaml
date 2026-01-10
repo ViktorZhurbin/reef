@@ -12,53 +12,6 @@ importers:
         specifier: 2.3.11
         version: 2.3.11
 
-  packages/bare-islands-preact:
-    dependencies:
-      '@vktrz/bare-static':
-        specifier: workspace:*
-        version: link:../core
-      esbuild:
-        specifier: ^0.27.2
-        version: 0.27.2
-      preact:
-        specifier: ^10.28.0
-        version: 10.28.2
-      preact-custom-element:
-        specifier: ^4.6.0
-        version: 4.6.0(preact@10.28.2)
-    devDependencies:
-      '@babel/core':
-        specifier: ^7.28.5
-        version: 7.28.5
-      '@babel/plugin-transform-react-jsx':
-        specifier: ^7.27.1
-        version: 7.27.1(@babel/core@7.28.5)
-      '@babel/preset-typescript':
-        specifier: ^7.28.5
-        version: 7.28.5(@babel/core@7.28.5)
-
-  packages/bare-islands-solid:
-    dependencies:
-      '@vktrz/bare-static':
-        specifier: workspace:*
-        version: link:../core
-      esbuild:
-        specifier: ^0.27.2
-        version: 0.27.2
-      solid-js:
-        specifier: ^1.9.0
-        version: 1.9.10
-    devDependencies:
-      '@babel/core':
-        specifier: ^7.28.5
-        version: 7.28.5
-      '@babel/preset-typescript':
-        specifier: ^7.28.5
-        version: 7.28.5(@babel/core@7.28.5)
-      babel-preset-solid:
-        specifier: ^1.9.10
-        version: 1.9.10(@babel/core@7.28.5)(solid-js@1.9.10)
-
   packages/bare-signals:
     devDependencies:
       polka:
@@ -82,12 +35,21 @@ importers:
       preact:
         specifier: ^10.28.0
         version: 10.28.2
+      preact-custom-element:
+        specifier: ^4.6.0
+        version: 4.6.0(preact@10.28.2)
       preact-render-to-string:
         specifier: ^6.5.12
         version: 6.6.5(preact@10.28.2)
       sirv:
         specifier: ^3.0.2
         version: 3.0.2
+      solid-element:
+        specifier: ^1.8.0
+        version: 1.9.1(solid-js@1.9.10)
+      solid-js:
+        specifier: ^1.9.10
+        version: 1.9.10
     devDependencies:
       '@babel/core':
         specifier: ^7.28.5
@@ -98,27 +60,21 @@ importers:
       '@babel/preset-typescript':
         specifier: ^7.28.5
         version: 7.28.5(@babel/core@7.28.5)
+      babel-preset-solid:
+        specifier: ^1.9.10
+        version: 1.9.10(@babel/core@7.28.5)(solid-js@1.9.10)
       esbuild:
         specifier: ^0.27.2
         version: 0.27.2
 
   website:
     dependencies:
-      '@vktrz/bare-islands-preact':
-        specifier: workspace:*
-        version: link:../packages/bare-islands-preact
-      '@vktrz/bare-islands-solid':
-        specifier: workspace:*
-        version: link:../packages/bare-islands-solid
       '@vktrz/bare-static':
         specifier: workspace:*
         version: link:../packages/core
       preact:
         specifier: ^10.25.4
         version: 10.28.2
-      solid-js:
-        specifier: ^1.9.10
-        version: 1.9.10
 
 packages:
 
@@ -525,6 +481,9 @@ packages:
   caniuse-lite@1.0.30001763:
     resolution: {integrity: sha512-mh/dGtq56uN98LlNX9qdbKnzINhX0QzhiWBFEkFfsFO4QyCvL8YegrJAazCwXIeqkIob8BlZPGM3xdnY+sgmvQ==}
 
+  component-register@0.8.8:
+    resolution: {integrity: sha512-djhwcxjY+X9dacaYUEOkOm7tda8uOEDiMDigWysu3xv54M8o6XDlsjR1qt5Y8QLGiKg51fqXFIR2HUTmt9ys0Q==}
+
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
 
@@ -666,6 +625,11 @@ packages:
   sirv@3.0.2:
     resolution: {integrity: sha512-2wcC/oGxHis/BoHkkPwldgiPSYcpZK3JU28WoMVv55yHJgcZ8rlXvuG9iZggz+sU1d4bRgIGASwyWqjxu3FM0g==}
     engines: {node: '>=18'}
+
+  solid-element@1.9.1:
+    resolution: {integrity: sha512-baJy6Qz27oAUgkPlqOf3Y+7RsBiuVQrS51Nrh1ddDbrqrNPvJbIvehpUsTzLNFb2ZHIoHuNnDg330go/ZKcRdg==}
+    peerDependencies:
+      solid-js: ^1.9.3
 
   solid-js@1.9.10:
     resolution: {integrity: sha512-Coz956cos/EPDlhs6+jsdTxKuJDPT7B5SVIWgABwROyxjY7Xbr8wkzD68Et+NxnV7DLJ3nJdAC2r9InuV/4Jew==}
@@ -1067,6 +1031,8 @@ snapshots:
 
   caniuse-lite@1.0.30001763: {}
 
+  component-register@0.8.8: {}
+
   convert-source-map@2.0.0: {}
 
   csstype@3.2.3: {}
@@ -1197,6 +1163,11 @@ snapshots:
       '@polka/url': 1.0.0-next.29
       mrmime: 2.0.1
       totalist: 3.0.1
+
+  solid-element@1.9.1(solid-js@1.9.10):
+    dependencies:
+      component-register: 0.8.8
+      solid-js: 1.9.10
 
   solid-js@1.9.10:
     dependencies:

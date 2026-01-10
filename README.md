@@ -6,7 +6,7 @@ A minimalist SSG framework with optional reactivity islands.
 
 ✓ Markdown to HTML
 
-✓ JSX to static HTML 
+✓ JSX to static HTML
 
 ✓ JSX to interactive components (with plugins for Solid.js, Preact)
 
@@ -34,28 +34,6 @@ TODO: needs update
 At the root of the project, add `content/` folder with `.md` files, and a `template.html` with `{{title}}` and `{{content}}` placeholders.
 
 Example: https://github.com/ViktorZhurbin/bare-static/tree/main/packages/website
-
-## Plugins
-
-Extend bare-static with plugins via `bare.config.js`:
-
-```javascript
-import { bareIslandsSolid } from "@vktrz/bare-islands-solid";
-import { bareIslandsPreact } from "@vktrz/bare-islands-preact";
-
-export default {
-	plugins: [bareIslandsSolid(), bareIslandsPreact()],
-};
-```
-
-### Available Plugins
-
-Write regular Solid.js and/or Preact code, and add it as interactive "islands" to static pages. 
-You can have components from different frameworks on the same page.
-
-- [plugin-solid](https://github.com/ViktorZhurbin/bare-static/tree/main/packages%2Fbare-islands-solid)
-
-- [plugin-preact](https://github.com/ViktorZhurbin/bare-static/tree/main/packages%2Fbare-islands-preact)
 
 ### Plugin API
 

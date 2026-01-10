@@ -1,32 +1,32 @@
-import { OUTPUT_DIR } from "@vktrz/bare-static/constants";
+import { OUTPUT_DIR } from "../../constants/dir.js";
 import {
 	generateTagsForUsedComponents,
 	processJSXIslands,
-} from "@vktrz/bare-static/plugin-utils";
+} from "../../lib/plugin-utils";
 import { compileJSXIsland } from "./jsx-compiler.js";
 
 /**
- * @typedef {import('@vktrz/bare-static/plugin-utils/types.js').IslandComponent} IslandComponent
+ * @typedef {import('../../lib/plugin-utils/types.js').IslandComponent} IslandComponent
  */
 
-const DEFAULT_ISLANDS_DIR = "islands-preact";
+const DEFAULT_ISLANDS_DIR = "islands-solid";
 
 /**
- * Bare Islands Preact Plugin
- * Enables interactive islands architecture with Preact JSX components
+ * Bare Islands Plugin
+ * Enables interactive islands architecture with Solid.js JSX components
  *
  * @param {Object} options - Plugin configuration
  * @param {string} [options.islandsDir] - Directory containing JSX islands
  * @returns {Object} Plugin instance with hooks
  */
-export function bareIslandsPreact(options = {}) {
+export function solidIslands(options = {}) {
 	const { islandsDir = DEFAULT_ISLANDS_DIR } = options;
 
 	/** @type {IslandComponent[]} */
 	let discoveredComponents = [];
 
 	return {
-		name: "bare-islands-preact",
+		name: "islands-solid",
 
 		// Watch islands directory for changes in dev mode
 		watchDirs: [islandsDir],
@@ -43,13 +43,13 @@ export function bareIslandsPreact(options = {}) {
 			discoveredComponents = await processJSXIslands({
 				islandsDir,
 				outputDir,
-				elementSuffix: "-preact",
+				elementSuffix: "-solid",
 				compileIsland: compileJSXIsland,
 			});
 		},
 
 		/**
-		 * Hook: Returns import map for Preact runtime from CDN
+		 * Hook: Returns import map for Solid.js runtime from CDN
 		 * @returns {Promise<string|null>} Import map script tag or null
 		 */
 		async getImportMap() {
@@ -57,13 +57,9 @@ export function bareIslandsPreact(options = {}) {
 
 			const importMap = {
 				imports: {
-					preact: "https://cdn.jsdelivr.net/npm/preact@10.28.2/+esm",
-					"preact/hooks":
-						"https://cdn.jsdelivr.net/npm/preact@10.28.2/hooks/+esm",
-					"preact/jsx-runtime":
-						"https://cdn.jsdelivr.net/npm/preact@10.28.2/jsx-runtime/+esm",
-					"preact-custom-element":
-						"https://cdn.jsdelivr.net/npm/preact-custom-element@4.6.0/dist/preact-custom-element.esm.js",
+					"solid-js": "https://esm.sh/solid-js",
+					"solid-js/web": "https://esm.sh/solid-js/web",
+					"solid-element": "https://esm.sh/solid-element",
 				},
 			};
 

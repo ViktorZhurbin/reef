@@ -11,8 +11,8 @@ A minimal markdown-based static site generator with optional interactive islands
 
 Add interactivity only where you need it:
 
-- [bare-islands-preact](/bare-islands-preact.html) - Lightweight Preact components (~4kb runtime)
-- [bare-islands-solid](/bare-islands-solid.html) - Reactive Solid.js components (~7kb runtime)
+- [islands-preact](/islands-preact.html) - Lightweight Preact components (~4kb runtime)
+- [islands-solid](/islands-solid.html) - Reactive Solid.js components (~7kb runtime)
 
 Here's an interactive Solid.js counter island:
 
@@ -62,4 +62,4 @@ Output goes to `dist/`.
 
 ## Learn More
 
-Check out the [plugin documentation](/bare-islands-preact.html) to see how to add interactive components to your pages.
+Check out the [plugin documentation](/islands-preact.html) to see how to add interactive components to your pages.

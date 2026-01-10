@@ -33,8 +33,8 @@ export default function DefaultLayout({
 					</h1>
 					<nav>
 						<a href="/index.html">Home</a>
-						<a href="/bare-islands-preact.html">Preact Plugin</a>
-						<a href="/bare-islands-solid.html">Solid Plugin</a>
+						<a href="/islands-preact.html">Preact Plugin</a>
+						<a href="/islands-solid.html">Solid Plugin</a>
 					</nav>
 				</header>
 				<main dangerouslySetInnerHTML={{ __html: content }} />

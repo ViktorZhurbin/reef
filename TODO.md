@@ -2,7 +2,7 @@
 
 ## 🎯 Meta
 
-- Should probably think of a better naming for the core package. And update naming for plugins (plugin-solid, plugin-*)
+- Should probably think of a better naming for the core package. And update naming for plugins (plugin-solid, plugin-\*)
 
 ---
 
@@ -68,7 +68,7 @@
 
 ### Core Tests
 
-- [ ] Test suite for bare-islands-\* plugins
+- [ ] Test suite for islands plugins
 - [ ] Test island mounting/unmounting in web components
 - [ ] Test nested components inside island
 - [ ] Test one complex Solid island (routing, state, API calls)

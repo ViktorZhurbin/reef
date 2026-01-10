@@ -8,10 +8,7 @@
 		"build": "bare-static build"
 	},
 	"dependencies": {
-		"@vktrz/bare-islands-solid": "workspace:*",
-		"@vktrz/bare-islands-preact": "workspace:*",
 		"@vktrz/bare-static": "workspace:*",
-		"preact": "^10.25.4",
-		"solid-js": "^1.9.10"
+		"preact": "^10.25.4"
 	}
 }
