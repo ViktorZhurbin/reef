@@ -1,9 +1,13 @@
 import render from "preact-render-to-string";
 
 /**
+ * @import { LayoutComponent, LayoutProps } from '../types/layout.js';
+ */
+
+/**
  * Render a layout component to HTML string
- * @param {Function} layoutFn - Layout component function
- * @param {Object} props - Props to pass to layout (title, content, scripts, importMaps, etc.)
+ * @param {LayoutComponent} layoutFn - Layout component function
+ * @param {LayoutProps} props - Props to pass to layout
  * @returns {string} Rendered HTML
  */
 export function renderLayout(layoutFn, props) {

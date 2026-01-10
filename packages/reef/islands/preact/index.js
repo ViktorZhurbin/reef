@@ -6,7 +6,8 @@ import {
 import { compileJSXIsland } from "./jsx-compiler.js";
 
 /**
- * @typedef {import('../../utils/types.js').IslandComponent} IslandComponent
+ * @import { IslandComponent } from '../../types/island.js';
+ * @import { ReefPlugin, IslandPluginOptions, PluginBuildContext, PluginScriptContext } from '../../types/plugin.js';
  */
 
 const DEFAULT_ISLANDS_DIR = "islands-preact";
@@ -15,9 +16,8 @@ const DEFAULT_ISLANDS_DIR = "islands-preact";
  * Reef Islands Preact Plugin
  * Enables interactive islands architecture with Preact JSX components
  *
- * @param {Object} options - Plugin configuration
- * @param {string} [options.islandsDir] - Directory containing JSX islands
- * @returns {Object} Plugin instance with hooks
+ * @param {IslandPluginOptions} [options] - Plugin configuration
+ * @returns {ReefPlugin} Plugin instance with hooks
  */
 export function preactIslands(options = {}) {
 	const { islandsDir = DEFAULT_ISLANDS_DIR } = options;
@@ -33,8 +33,7 @@ export function preactIslands(options = {}) {
 
 		/**
 		 * Hook: Called during build to discover, compile, and copy components
-		 * @param {Object} context - Build context
-		 * @param {string} context.outputDir - The output directory path
+		 * @param {PluginBuildContext} context - Build context
 		 */
 		async onBuild({ outputDir = OUTPUT_DIR }) {
 			discoveredComponents = [];
@@ -77,8 +76,7 @@ export function preactIslands(options = {}) {
 		/**
 		 * Hook: Returns script tags to inject into pages
 		 * Only injects scripts for components actually used on the page
-		 * @param {Object} context - Script context
-		 * @param {string} context.pageContent - The markdown content of the page
+		 * @param {PluginScriptContext} context - Script context
 		 * @returns {Promise<string[]>} Array of script tag strings
 		 */
 		async getScripts({ pageContent }) {

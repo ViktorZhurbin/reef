@@ -15,7 +15,7 @@ const PORT = 3000;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const liveReloadJs = await fsPromises.readFile(
 	path.join(__dirname, "live-reload.js"),
-	"utf-8"
+	"utf-8",
 );
 const liveReloadScript = `<script>\n${liveReloadJs}\n</script>`;
 

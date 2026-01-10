@@ -1,8 +1,8 @@
 import fsPromises from "node:fs/promises";
 
 /**
- * @typedef {import('esbuild').Plugin} EsbuildPlugin
- * @typedef {import('@babel/core').TransformOptions} BabelTransformOptions
+ * @import { Plugin as EsbuildPlugin } from 'esbuild'
+ * @import { TransformOptions as BabelTransformOptions } from '@babel/core'
  */
 
 /**
@@ -23,7 +23,7 @@ export function createBabelPlugin(name, getBabelConfig) {
 					babel.transformAsync(source, {
 						filename: args.path,
 						...babelConfig,
-					}),
+					})
 				);
 
 				return { contents: code, loader: "js" };

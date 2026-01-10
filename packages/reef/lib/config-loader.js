@@ -3,8 +3,12 @@ import { pathToFileURL } from "node:url";
 import { CONFIG_FILE } from "../constants/config.js";
 
 /**
+ * @import { ReefConfig } from '../types/config.js';
+ */
+
+/**
  * Load configuration file with plugins
- * @returns {Promise<Object|null>} Configuration object or null if file doesn't exist
+ * @returns {Promise<ReefConfig|null>} Configuration object or null if file doesn't exist
  */
 export async function loadConfig() {
 	try {

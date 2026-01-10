@@ -8,6 +8,10 @@ import * as esbuild from "esbuild";
 import { LAYOUTS_DIR } from "../constants/dir.js";
 import { createBabelPlugin } from "../utils/index.js";
 
+/**
+ * @import { LayoutComponent } from '../types/layout.js';
+ */
+
 const TEMP_DIR = path.join(os.tmpdir(), "reef-layouts");
 
 /**
@@ -50,10 +54,10 @@ async function compileLayout(sourcePath, outputPath) {
 
 /**
  * Discover, compile, and load all JSX layouts
- * @returns {Promise<Map<string, Function>>} Map of layout name to render function
+ * @returns {Promise<Map<string, LayoutComponent>>} Map of layout name to render function
  */
 export async function loadLayouts() {
-	/** @type {Map<string, Function>} */
+	/** @type {Map<string, LayoutComponent>} */
 	const layouts = new Map();
 
 	// Check if layouts directory exists

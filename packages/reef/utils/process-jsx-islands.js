@@ -4,7 +4,7 @@ import { styleText } from "node:util";
 import { getElementName } from "./get-element-name.js";
 
 /**
- * @typedef {import('./types.js').IslandComponent} IslandComponent
+ * @import { IslandComponent } from '../types/island.js';
  */
 
 /**
@@ -33,7 +33,9 @@ export async function processJSXIslands({
 	compileIsland,
 }) {
 	const OUTPUT_COMPONENTS_DIR = "components";
+	/** @type {IslandComponent[]} */
 	const discoveredComponents = [];
+	/** @type {{ sourcePath: string, elementName: string }[]} */
 	const compiledIslands = [];
 
 	// Check if islands directory exists
@@ -43,7 +45,7 @@ export async function processJSXIslands({
 		if (err.code === "ENOENT") {
 			console.warn(
 				styleText("red", `Islands directory not found:`),
-				styleText("magenta", islandsDir),
+				styleText("magenta", islandsDir)
 			);
 			return [];
 		}
@@ -98,12 +100,17 @@ export async function processJSXIslands({
 			console.info(
 				styleText(
 					"green",
-					`✓ Compiled ${compiledIslands.length} island${compiledIslands.length > 1 ? "s" : ""}:`,
-				),
+					`✓ Compiled ${compiledIslands.length} island${
+						compiledIslands.length > 1 ? "s" : ""
+					}:`
+				)
 			);
 			for (const { sourcePath, elementName } of compiledIslands) {
 				console.info(
-					`  ${styleText("cyan", sourcePath)} → ${styleText("magenta", `<${elementName}>`)}`,
+					`  ${styleText("cyan", sourcePath)} → ${styleText(
+						"magenta",
+						`<${elementName}>`
+					)}`
 				);
 			}
 		}

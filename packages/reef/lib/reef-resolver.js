@@ -4,11 +4,15 @@ import { pathToFileURL } from "node:url";
 import { CONTENT_DIR } from "../constants/dir.js";
 
 /**
+ * @import { Frontmatter } from '../types/layout.js';
+ */
+
+/**
  * Walk up directory tree from file path looking for reef.js files
  * Stops at CONTENT_DIR boundary
  *
  * @param {string} filePath - Path to markdown file (relative or absolute)
- * @returns {Promise<Object|null>} reef.js data object or null if not found
+ * @returns {Promise<Frontmatter|null>} reef.js data object or null if not found
  *
  * @example
  * // content/blog/nested/post.md
@@ -52,7 +56,7 @@ async function findReefData(filePath) {
  * Priority: frontmatter > reef.js (walking up tree) > default
  *
  * @param {string} filePath - Path to markdown file (relative or absolute)
- * @param {Object} frontmatter - Parsed frontmatter from file
+ * @param {Frontmatter} frontmatter - Parsed frontmatter from file
  * @returns {Promise<string>} Layout name to use
  */
 export async function resolveLayout(filePath, frontmatter = {}) {

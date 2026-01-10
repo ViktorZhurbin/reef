@@ -1,7 +1,7 @@
 import { detectCustomElements } from "./detect-custom-elements.js";
 
 /**
- * @typedef {import('./types.js').IslandComponent} IslandComponent
+ * @import { IslandComponent } from '../types/island.js';
  */
 
 /**
@@ -22,6 +22,6 @@ import { detectCustomElements } from "./detect-custom-elements.js";
 export function filterUsedComponents(discoveredComponents, pageContent) {
 	const usedElements = detectCustomElements(pageContent);
 	return discoveredComponents.filter(({ elementName }) =>
-		usedElements.has(elementName),
+		usedElements.has(elementName)
 	);
 }

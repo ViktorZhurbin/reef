@@ -2,7 +2,7 @@ import { filterUsedComponents } from "./filter-used-components.js";
 import { generateScriptTag } from "./generate-script-tag.js";
 
 /**
- * @typedef {import('./types.js').IslandComponent} IslandComponent
+ * @import { IslandComponent } from '../types/island.js';
  */
 
 /**
@@ -28,11 +28,11 @@ import { generateScriptTag } from "./generate-script-tag.js";
  */
 export function generateTagsForUsedComponents(
 	discoveredComponents,
-	pageContent,
+	pageContent
 ) {
 	const usedComponents = filterUsedComponents(
 		discoveredComponents,
-		pageContent,
+		pageContent
 	);
 	const tags = [];
 

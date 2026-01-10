@@ -11,6 +11,10 @@ import { loadLayouts } from "./layouts.js";
 import { resolveLayout } from "./reef-resolver.js";
 import { renderLayout } from "./render-layout.js";
 
+/**
+ * @import { BuildSingleOptions, BuildAllOptions } from '../types/build.js';
+ */
+
 const formatMs = (ms) => `${Math.round(ms)}ms`;
 
 // Load layouts once at module load
@@ -29,9 +33,10 @@ export async function reloadLayouts() {
 const defaultPlugins = [solidIslands(), preactIslands];
 
 /**
- * @param {string} mdFileName
- * @param {{injectScript?: string, logOnSuccess?: boolean, logOnStart?: boolean, plugins?: Array}} [options]
- * @returns {Promise<boolean>}
+ * Build a single markdown file to HTML
+ * @param {string} mdFileName - Markdown file name (relative to content directory)
+ * @param {BuildSingleOptions} [options] - Build options
+ * @returns {Promise<boolean>} - True if build succeeded, false otherwise
  */
 export async function buildSingle(mdFileName, options = {}) {
 	const { injectScript = "", logOnSuccess, logOnStart, plugins = [] } = options;
@@ -120,7 +125,8 @@ export async function buildSingle(mdFileName, options = {}) {
 }
 
 /**
- * @param {{injectScript?: string, verbose?: boolean, plugins?: Array}} [options]
+ * Build all markdown files to HTML
+ * @param {BuildAllOptions} [options] - Build options
  */
 export async function buildAll(options = {}) {
 	const { injectScript = "", verbose = false, plugins = [] } = options;
