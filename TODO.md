@@ -1,8 +1,19 @@
-# Bare Static: Current Roadmap
+# Roadmap
 
-**Status**: Educational SSG project exploring islands architecture with web components
+Should probably think of a better naming for the core package. And update naming for plugins (plugin-solid, plugin-*)
 
-**Current Focus**: JSX compilation pipeline that wraps JSX components in web components
+## Focus 
+
+- [ ] [core] JSX for layouts, templating, static components
+- [ ] [core] configurable paths (output, content)
+- [ ] [core]: Watch all files, rebuild on change (config, content, components
+- [ ] TSX support (core and plugins)
+- [ ] [plugin] Explore micro-frameworks (LitHTML, HyperHTML, IncrementalDOM, modern alternatives)
+- [ ] [core] Watch `.t|jsx` files, rebuild on change
+- [ ] [plugin] code syntax highlight
+- [ ] Lazy load islands (Intersection Observer for below-fold islands)
+- [ ] Consider preloading framework runtime for critical islands 
+- [ ] Consider static > island swapping to avoid layout jump
 
 ---
 
@@ -11,6 +22,7 @@
 ### High Priority Docs
 
 - [ ] Document JSX component conventions (file naming, props)
+- [ ] Document main conventions (folder structure, naming, config options, templating)
 - [ ] Document web component wrapper pattern
 - [ ] Quick start guide: "Your first island"
 
@@ -24,24 +36,18 @@
 
 ## 🛠️ Developer Experience
 
-- [ ] Add `bare-static create-island <name>` CLI command (generates `.jsx` scaffold)
+- [ ] Add `bare-static create <project-name>` CLI command (new project scaffold)
 - [ ] Better error messages (e.g., "Island X used but not found")
-- [ ] Validate JSX compilation errors (helpful Solid error messages)
-- [ ] Add Solid island template/boilerplate
-- [ ] TypeScript support for islands (`.tsx`)
-- [ ] Dev mode: Watch `.jsx` files, rebuild on change
+- [ ] Validate JSX compilation errors (helpful error messages)
 
 ---
 
 ## ⚡ Performance
 
-- [ ] Minify Solid runtime and island code in production?
+- [ ] Minify js in production
+- [ ] Bundle frameworks at build, instead of CDN?
 - [ ] Add cache busting (content hash in filenames)
-- [ ] Bundle Solid runtime separately (shared across all islands)
-- [ ] Measure bundle size: bare-static + Solid vs Astro approach
-- [ ] Tree-shake unused Solid features (only ship what islands use)
-- [ ] Lazy load islands (Intersection Observer for below-fold islands)
-- [ ] Consider preloading Solid runtime for critical islands
+- [ ] Tree-shake unused Solid features (only ship what islands use)?
 
 ---
 
@@ -50,24 +56,6 @@
 ### Core Tests
 
 - [ ] Test suite for bare-islands-\* plugins
-- [ ] Test Solid island mounting/unmounting in web components
-- [ ] Test web component wrapper generation
-- [ ] Test props passing (attributes → Solid props)
-- [ ] Test multiple islands on same page (shared runtime)
-- [ ] Test nested Solid components inside island
-
-### Integration Tests
-
-- [ ] Test error handling (missing files, JSX syntax errors)
-- [ ] Integration tests for full build pipeline (markdown → HTML → islands)
+- [ ] Test island mounting/unmounting in web components
+- [ ] Test nested components inside island
 - [ ] Test one complex Solid island (routing, state, API calls)
-
----
-
-## 🎯 Next Milestones
-
-1. **Complex island test**: Validate "no limitations" theory (routing, state, API calls)
-2. Better name for the project
-3. **Bundle comparison**: Measure bare-static + Solid vs Astro/Fresh
-4. **Documentation**: Quick start guide and examples
-5. **Polish**: Better errors, CLI commands, TypeScript support
