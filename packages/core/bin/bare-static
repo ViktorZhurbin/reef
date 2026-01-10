@@ -1,7 +1,14 @@
 #!/bin/bash
 
-if [ "$1" = "build" ]; then
-  exec node "$(dirname "$0")/../lib/build.js"
+# Use bun if available, otherwise fall back to node
+if command -v bun &> /dev/null; then
+  RUNTIME="bun"
 else
-  exec node "$(dirname "$0")/../lib/dev.js"
+  RUNTIME="node"
+fi
+
+if [ "$1" = "build" ]; then
+  exec $RUNTIME "$(dirname "$0")/../lib/build.js" "$@"
+else
+  exec $RUNTIME "$(dirname "$0")/../lib/dev.js" "$@"
 fi
