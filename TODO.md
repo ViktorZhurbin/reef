@@ -15,6 +15,7 @@ Then: Clean up based on real usage pain points
 - Fresh (Deno) - Islands without build step
 - Lume - Modern 11ty-style SSG with JSX
 - Lit - Native web components reactivity
+- Vite, esbuild, Parcel - for plugin architecture 
 
 
 ## 🏗️ Core Architecture
