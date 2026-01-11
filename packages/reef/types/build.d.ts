@@ -7,7 +7,7 @@ import type { ReefPlugin } from "./plugin.js";
 /**
  * Options for building a single markdown file
  */
-export interface BuildSingleOptions {
+export interface BuildMdPageOptions {
 	/** Optional script to inject into the page */
 	injectScript?: string;
 	/** Whether to log on successful build */
@@ -16,6 +16,7 @@ export interface BuildSingleOptions {
 	logOnStart?: boolean;
 	/** Plugins to apply during build */
 	plugins?: ReefPlugin[];
+	layouts?: string[];
 }
 
 /**

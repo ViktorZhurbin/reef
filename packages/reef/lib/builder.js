@@ -1,18 +1,21 @@
 import fsPromises from "node:fs/promises";
 import path from "node:path";
 import { styleText } from "node:util";
-import matter from "gray-matter";
-import { marked } from "marked";
-import { CONTENT_DIR, OUTPUT_DIR, PUBLIC_DIR } from "../constants/dir.js";
+import {
+	CONTENT_DIR,
+	OUTPUT_DIR,
+	PAGES_DIR,
+	PUBLIC_DIR,
+} from "../constants/dir.js";
 import { preactIslands } from "../islands/preact/index.js";
 import { solidIslands } from "../islands/solid/index.js";
+import { buildJSXPage } from "./build-jsx-page.js";
 import { loadConfig } from "./config-loader.js";
 import { loadLayouts } from "./layouts.js";
-import { resolveLayout } from "./reef-resolver.js";
-import { renderLayout } from "./render-layout.js";
+import { buildMdPage } from "./build-md-page.js";
 
 /**
- * @import { BuildSingleOptions, BuildAllOptions } from '../types/build.js';
+ * @import { BuildAllOptions } from '../types/build.js';
  */
 
 const formatMs = (ms) => `${Math.round(ms)}ms`;
@@ -28,94 +31,6 @@ const config = await loadConfig();
  */
 export async function reloadLayouts() {
 	layouts = await loadLayouts();
-}
-
-/**
- * Build a single markdown file to HTML
- * @param {string} mdFileName - Markdown file name (relative to content directory)
- * @param {BuildSingleOptions} [options] - Build options
- * @returns {Promise<boolean>} - True if build succeeded, false otherwise
- */
-export async function buildSingle(mdFileName, options = {}) {
-	const { injectScript = "", logOnSuccess, logOnStart, plugins = [] } = options;
-	const startTime = performance.now();
-
-	const htmlFileName = mdFileName.replace(".md", ".html");
-	const mdFilePath = path.join(CONTENT_DIR, mdFileName);
-
-	try {
-		if (logOnStart) {
-			console.info(
-				`Writing ${OUTPUT_DIR}/${htmlFileName} ${styleText(
-					"gray",
-					`from ${mdFilePath}`,
-				)}`,
-			);
-		}
-
-		// Read file and parse frontmatter
-		const fileContent = await fsPromises.readFile(mdFilePath, "utf-8");
-		const { data: frontmatter, content: markdown } = matter(fileContent);
-
-		// Use frontmatter title or derive from filename
-		const title = frontmatter.title || mdFileName.replace(".md", "");
-
-		// Render markdown to HTML
-		const contentHtml = marked(markdown);
-
-		// Get import maps and per-page scripts from plugins
-		const importMaps = [];
-		const pluginScripts = []; // per-page scripts from plugins
-		for (const plugin of plugins) {
-			if (plugin.getImportMap) {
-				const importMap = await plugin.getImportMap();
-				if (importMap) importMaps.push(importMap);
-			}
-
-			if (plugin.getScripts) {
-				const scripts = await plugin.getScripts({ pageContent: markdown });
-				pluginScripts.push(...scripts);
-			}
-		}
-
-		// Combine all scripts
-		const allScripts = [...pluginScripts, injectScript].filter(Boolean);
-
-		// Resolve which layout to use
-		const layoutName = await resolveLayout(mdFilePath, frontmatter);
-
-		const layoutFn = layouts.get(layoutName);
-
-		if (!layoutFn) {
-			throw new Error(`Layout '${layoutName}' not found in layouts/`);
-		}
-
-		// Render layout with props
-		const pageHtml = renderLayout(layoutFn, {
-			title,
-			content: contentHtml,
-			scripts: allScripts,
-			importMaps,
-			...frontmatter,
-		});
-
-		const htmlFilePath = path.join(OUTPUT_DIR, htmlFileName);
-		// Ensure directory exists for nested files (e.g., blog/post.html)
-		await fsPromises.mkdir(path.dirname(htmlFilePath), { recursive: true });
-		await fsPromises.writeFile(htmlFilePath, pageHtml);
-
-		if (logOnSuccess) {
-			const buildTime = formatMs(performance.now() - startTime);
-			console.info(styleText("green", `Wrote ${htmlFileName} in ${buildTime}`));
-		}
-		return true;
-	} catch (err) {
-		console.error(
-			`${styleText("gray", "Failed to build")} ${mdFileName}`,
-			err.message,
-		);
-		return false;
-	}
 }
 
 const defaultPlugins = [solidIslands(), preactIslands()];
@@ -156,29 +71,57 @@ export async function buildAll(options = {}) {
 		}
 	}
 
-	// Read all .md files recursively and build them in parallel
-	const buildPromises = await Array.fromAsync(
-		fsPromises.glob(path.join(CONTENT_DIR, "**/*.md")),
-		(filePath) => {
-			// Convert absolute path to relative path from CONTENT_DIR
-			const relativePath = path.relative(CONTENT_DIR, filePath);
-			return buildSingle(relativePath, {
-				injectScript,
-				logOnStart: verbose,
-				plugins: allPlugins,
-			});
-		},
+	// Helper to safely build files from a directory (handles missing directories)
+	const safeBuildFrom = async (dir, pattern, buildFn, extraOptions = {}) => {
+		try {
+			return await Array.fromAsync(
+				fsPromises.glob(path.join(dir, pattern)),
+				(filePath) => {
+					const relativePath = path.relative(dir, filePath);
+					return buildFn(relativePath, {
+						injectScript,
+						logOnStart: verbose,
+						plugins: allPlugins,
+						...extraOptions,
+					});
+				},
+			);
+		} catch (err) {
+			// Directory doesn't exist, return empty array
+			if (err.code === "ENOENT") {
+				return [];
+			}
+			throw err;
+		}
+	};
+
+	// Build all markdown files
+	const mdBuildPromises = await safeBuildFrom(
+		CONTENT_DIR,
+		"**/*.md",
+		buildMdPage,
+		{ layouts },
 	);
 
-	if (buildPromises.length === 0) {
-		console.warn(`No markdown files found in ${CONTENT_DIR}`);
+	// Build all JSX pages
+	const jsxBuildPromises = await safeBuildFrom(
+		PAGES_DIR,
+		"**/*.{jsx,tsx}",
+		buildJSXPage,
+	);
+
+	// Combine all build promises
+	const allBuildPromises = [...mdBuildPromises, ...jsxBuildPromises];
+
+	if (allBuildPromises.length === 0) {
+		console.warn(`No files found in ${CONTENT_DIR} or ${PAGES_DIR}`);
 		return;
 	}
 
-	const results = await Promise.all(buildPromises);
+	const results = await Promise.all(allBuildPromises);
 
 	const successCount = results.filter((r) => r === true).length;
-	const failCount = buildPromises.length - successCount;
+	const failCount = allBuildPromises.length - successCount;
 
 	const buildTime = formatMs(performance.now() - startTime);
 

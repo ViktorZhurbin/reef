@@ -1,39 +1,15 @@
 import fsPromises from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
 import { styleText } from "node:util";
-import * as esbuild from "esbuild";
 import { LAYOUTS_DIR } from "../constants/dir.js";
-import { preactBabelPlugin } from "../utils/index.js";
+import { compileAndLoadJSX } from "../utils/index.js";
 
 /**
  * @import { LayoutComponent } from '../types/layout.js';
  */
 
 const TEMP_DIR = path.join(os.tmpdir(), "reef-layouts");
-
-/**
- * Compile a single layout JSX file to JS
- * @param {string} sourcePath - Path to layout JSX file
- * @param {string} outputPath - Path for compiled output
- */
-async function compileLayout(sourcePath, outputPath) {
-	const result = await esbuild.build({
-		entryPoints: [sourcePath],
-		bundle: true,
-		format: "esm",
-		target: "es2020",
-		write: false,
-		outfile: outputPath,
-		plugins: [preactBabelPlugin],
-		// Don't mark preact as external - bundle it so Node can import the compiled layout
-		logLevel: "warning",
-	});
-
-	await fsPromises.mkdir(path.dirname(outputPath), { recursive: true });
-	await fsPromises.writeFile(outputPath, result.outputFiles[0].text);
-}
 
 /**
  * Discover, compile, and load all JSX layouts
@@ -76,12 +52,8 @@ export async function loadLayouts() {
 		const outputPath = path.join(TEMP_DIR, `${layoutName}.js`);
 
 		try {
-			// Compile layout
-			await compileLayout(sourcePath, outputPath);
-
-			// Import compiled module
-			const moduleUrl = pathToFileURL(outputPath).href;
-			const layoutModule = await import(`${moduleUrl}?t=${Date.now()}`);
+			// Compile and load layout module
+			const layoutModule = await compileAndLoadJSX(sourcePath, outputPath);
 
 			if (!layoutModule.default) {
 				throw new Error(

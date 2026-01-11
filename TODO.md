@@ -1,11 +1,34 @@
 # Roadmap
 
-## 🚀 Core Features
+## Clean up and better organize lib and utils folders
 
-### Configuration
+## Configurable paths
+Use reef.config.js file to configure output, content and other directories (current defaults are in `constants/dir.js`)
 
-- [ ] Configurable paths (output, content, islands)
+## JSX Pages - v2
 
+Allow layout wrapping in pages/.
+
+- Same logic as the current data-cascade: default > reef.js > frontmatter, but with `metadata` instead of frontmatter
+- Pass all metadata fields as props to layout
+
+
+1. **Metadata exports** - Title, layout selection, custom fields
+   ```jsx
+  export const metadata = {
+      title: 'Welcome',
+      layout: 'default'
+    };
+
+    export default function Landing() {
+      return (
+        <main>
+          <h1>Welcome to Reef</h1>
+          <counter-solid></counter-solid>
+        </main>
+      );
+    }
+   ```
 ---
 
 ## 🏝️ Plugin Features

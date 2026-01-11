@@ -10,7 +10,6 @@ export async function compileJSXIsland({
 }) {
 	/**
 	 * Virtual entry for Preact using preact-custom-element
-	 * Much simpler than Solid version - register() handles everything
 	 */
 	const virtualEntry = `
     import register from 'preact-custom-element';

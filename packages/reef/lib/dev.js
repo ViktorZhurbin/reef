@@ -5,9 +5,15 @@ import { styleText } from "node:util";
 import polka from "polka";
 import sirv from "sirv";
 import { CONFIG_FILE } from "../constants/config.js";
-import { CONTENT_DIR, LAYOUTS_DIR, OUTPUT_DIR } from "../constants/dir.js";
-import { buildAll, buildSingle, reloadLayouts } from "./builder.js";
+import {
+	CONTENT_DIR,
+	LAYOUTS_DIR,
+	OUTPUT_DIR,
+	PAGES_DIR,
+} from "../constants/dir.js";
+import { buildAll, reloadLayouts } from "./builder.js";
 import { loadConfig } from "./config-loader.js";
+import { buildMdPage } from "./build-md-page.js";
 
 const PORT = 3000;
 
@@ -67,7 +73,7 @@ function notifyReload() {
 		if (event.filename?.endsWith(".md")) {
 			logFileChanged(filePath);
 
-			await buildSingle(event.filename, {
+			await buildMdPage(event.filename, {
 				injectScript: liveReloadScript,
 				logOnSuccess: true,
 			});
@@ -86,6 +92,7 @@ function notifyReload() {
 // Collect all watch directories
 const watchDirs = new Set([
 	LAYOUTS_DIR,
+	PAGES_DIR,
 	...(config?.plugins || []).flatMap((p) => p.watchDirs || []),
 ]);
 
