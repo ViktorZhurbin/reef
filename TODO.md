@@ -12,6 +12,7 @@ Then: Clean up based on real usage pain points
 
 - Astro 
 - 11ty
+- SolidStart, SvelteKit - DX, conventions, approach to SSG 
 - Fresh (Deno) - Islands without build step
 - Lume - Modern 11ty-style SSG with JSX
 - Lit - Native web components reactivity
