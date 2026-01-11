@@ -1,24 +1,7 @@
 import fsPromises from "node:fs/promises";
 import path from "node:path";
-import tsPreset from "@babel/preset-typescript";
 import * as esbuild from "esbuild";
-import { createBabelPlugin, writeEsbuildOutput } from "../../utils/index.js";
-
-/**
- * A tiny esbuild plugin to handle Preact JSX via Babel
- */
-const preactBabelPlugin = createBabelPlugin("preact-babel", () => ({
-	presets: [[tsPreset]],
-	plugins: [
-		[
-			"@babel/plugin-transform-react-jsx",
-			{
-				runtime: "automatic",
-				importSource: "preact",
-			},
-		],
-	],
-}));
+import { preactBabelPlugin, writeEsbuildOutput } from "../../utils/index.js";
 
 export async function compileJSXIsland({
 	sourcePath,

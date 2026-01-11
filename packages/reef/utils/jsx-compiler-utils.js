@@ -1,4 +1,5 @@
 import fsPromises from "node:fs/promises";
+import tsPreset from "@babel/preset-typescript";
 
 /**
  * @import { Plugin as EsbuildPlugin } from 'esbuild'
@@ -53,3 +54,19 @@ export async function writeEsbuildOutput(result) {
 
 	return { cssOutputPath };
 }
+
+/**
+ * Babel plugin for Preact JSX compilation
+ */
+export const preactBabelPlugin = createBabelPlugin("preact-babel", () => ({
+	presets: [[tsPreset]],
+	plugins: [
+		[
+			"@babel/plugin-transform-react-jsx",
+			{
+				runtime: "automatic",
+				importSource: "preact",
+			},
+		],
+	],
+}));

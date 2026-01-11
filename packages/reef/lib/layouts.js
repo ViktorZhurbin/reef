@@ -3,32 +3,15 @@ import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { styleText } from "node:util";
-import tsPreset from "@babel/preset-typescript";
 import * as esbuild from "esbuild";
 import { LAYOUTS_DIR } from "../constants/dir.js";
-import { createBabelPlugin } from "../utils/index.js";
+import { preactBabelPlugin } from "../utils/index.js";
 
 /**
  * @import { LayoutComponent } from '../types/layout.js';
  */
 
 const TEMP_DIR = path.join(os.tmpdir(), "reef-layouts");
-
-/**
- * Babel plugin for Preact JSX compilation
- */
-const preactBabelPlugin = createBabelPlugin("preact-babel", () => ({
-	presets: [[tsPreset]],
-	plugins: [
-		[
-			"@babel/plugin-transform-react-jsx",
-			{
-				runtime: "automatic",
-				importSource: "preact",
-			},
-		],
-	],
-}));
 
 /**
  * Compile a single layout JSX file to JS
