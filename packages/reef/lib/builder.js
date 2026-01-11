@@ -95,6 +95,50 @@ export async function buildAll(options = {}) {
 		}
 	};
 
+	// Detect route conflicts between content/ and pages/
+	const mdFiles = new Set();
+	const jsxFiles = new Set();
+
+	try {
+		for await (const filePath of fsPromises.glob(
+			path.join(CONTENT_DIR, "**/*.md"),
+		)) {
+			const relativePath = path.relative(CONTENT_DIR, filePath);
+			const htmlPath = relativePath.replace(".md", ".html");
+			mdFiles.add(htmlPath);
+		}
+	} catch (err) {
+		if (err.code !== "ENOENT") throw err;
+	}
+
+	try {
+		for await (const filePath of fsPromises.glob(
+			path.join(PAGES_DIR, "**/*.{jsx,tsx}"),
+		)) {
+			const relativePath = path.relative(PAGES_DIR, filePath);
+			const htmlPath = relativePath.replace(/\.[jt]sx$/, ".html");
+			jsxFiles.add(htmlPath);
+		}
+	} catch (err) {
+		if (err.code !== "ENOENT") throw err;
+	}
+
+	// Warn about conflicts
+	const conflicts = [...mdFiles].filter((file) => jsxFiles.has(file));
+	if (conflicts.length > 0) {
+		console.warn(
+			styleText("yellow", "⚠ Route conflicts detected:"),
+			conflicts
+				.map((file) => {
+					const mdPath = `content/${file.replace(".html", ".md")}`;
+					const jsxPath = `pages/${file.replace(".html", ".jsx")}`;
+					return `\n  ${file} - both ${mdPath} and ${jsxPath}[tsx] exist`;
+				})
+				.join(""),
+			styleText("yellow", "\n  → JSX pages will take precedence"),
+		);
+	}
+
 	// Build all markdown files
 	const mdBuildPromises = await safeBuildFrom(
 		CONTENT_DIR,
@@ -103,7 +147,7 @@ export async function buildAll(options = {}) {
 		{ layouts },
 	);
 
-	// Build all JSX pages
+	// Build all JSX pages (after markdown, so JSX deterministically wins conflicts)
 	const jsxBuildPromises = await safeBuildFrom(
 		PAGES_DIR,
 		"**/*.{jsx,tsx}",
