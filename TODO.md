@@ -82,7 +82,8 @@ Island Usage
 [ ] Component naming conventions (Counter.jsx → counter-solid)
 [ ] Props and attributes (how to pass data to islands)
 [ ] Web component wrapper pattern explanation
-Examples
+
+## Examples
 [ ] Simple nested components
 [ ] Complex example: mini dashboard with multiple islands
 [ ] Real-world: Build reef's own docs site with reef
@@ -91,13 +92,24 @@ Examples
 
 ### Performance
 
-[ ] Minify JS in production builds
-[ ] Content hash in filenames (cache busting)
-[ ] CSS bundling and optimization
-Testing
-[ ] Define testing strategy (unit? integration? e2e?)
-[ ] Test island detection and injection
-[ ] Test layout resolution cascade
+- [ ] Minify JS in production builds
+
+```js
+// In island compilers
+await esbuild.build({
+  // ... existing config
+  minify: process.env.NODE_ENV === 'production',
+});
+```
+
+- [ ] Content hash in filenames (cache busting)
+- [ ] CSS bundling and optimization
+
+
+## Testing
+- [ ] Define testing strategy (unit? integration? e2e?)
+- [ ] Test island detection and injection
+- [ ] Test layout resolution cascade
 
 
 ## 🧹 Polish
