@@ -43,6 +43,7 @@ Then: Clean up based on real usage pain points
 ## 🎨 Features
 
 ### JSX Pages v2 - Layout Support
+
 - [ ] Add metadata export pattern for pages/
   ```jsx
   export const metadata = {
@@ -50,6 +51,7 @@ Then: Clean up based on real usage pain points
     layout: 'default',
     // custom fields...
   };
+  ```
 - [ ] Implement data cascade: default > reef.js > metadata
 - [ ] Pass all metadata fields as props to layout
 - [ ] Detect full-page vs content-only (warn if layout + )
@@ -58,35 +60,40 @@ Then: Clean up based on real usage pain points
 
 Decision: Try is-land library first
 
-- Wrap components in <is-land on:visible> during build
-- Add is-land.js to import maps
-Register framework init types (preact/solid)
+- [ ] Wrap components in <is-land on:visible> during build
+- [ ] Add is-land.js to import maps
+- [ ] Register framework init types (preact/solid)
 
 Alternative: Build custom ReefIsland if is-land feels limiting
 
-- IntersectionObserver for on:visible
-- requestIdleCallback for on:idle
-- Promise-based state machine (~60 LOC)
+- [ ] IntersectionObserver for on:visible
+- [ ] requestIdleCallback for on:idle
+- [ ] Promise-based state machine (~60 LOC)
 
-## Developer Experience
+### Developer Experience
+
 - [ ] reef create <project-name> CLI command (scaffold new projects)
 - [ ] Improved dev server logging (clearer rebuild messages)
 
 ## 📚 Documentation
 
 ### User Guides
-[ ] Quick start: "From static to your first island"
-[ ] Folder structure and routing conventions
-[ ] Config file reference (reef.config.js)
-Island Usage
-[ ] Component naming conventions (Counter.jsx → counter-solid)
-[ ] Props and attributes (how to pass data to islands)
-[ ] Web component wrapper pattern explanation
 
-## Examples
-[ ] Simple nested components
-[ ] Complex example: mini dashboard with multiple islands
-[ ] Real-world: Build reef's own docs site with reef
+- [ ] Quick start: "From static to your first island"
+- [ ] Folder structure and routing conventions
+- [ ] Config file reference (reef.config.js)
+
+### Island Usage
+
+- [ ] Component naming conventions (Counter.jsx → counter-solid)
+- [ ] Props and attributes (how to pass data to islands)
+- [ ] Web component wrapper pattern explanation
+
+### Examples
+
+- [ ] Simple nested components
+- [ ] Complex example: mini dashboard with multiple islands
+- [ ] Real-world: Build reef's own docs site with reef
 
 ## ⚡ Production Ready
 
@@ -105,23 +112,22 @@ await esbuild.build({
 - [ ] Content hash in filenames (cache busting)
 - [ ] CSS bundling and optimization
 
+### Testing
 
-## Testing
 - [ ] Define testing strategy (unit? integration? e2e?)
 - [ ] Test island detection and injection
 - [ ] Test layout resolution cascade
-
 
 ## 🧹 Polish
 
 ### Routing
 
-[ ] Research Astro/11ty routing conventions
-[ ] Handle duplicate routes (pages/ vs content/)
-[ ] Document routing priority/conflicts
+- [ ] Research Astro/11ty routing conventions
+- [ ] Handle duplicate routes (pages/ vs content/)
+- [ ] Document routing priority/conflicts
 
 ### Refactoring
 
-[ ] Extract duplicate compilation logic
-[ ] Simplify plugin API surface
-[ ] Review complexity added this week
+- [ ] Extract duplicate compilation logic
+- [ ] Simplify plugin API surface
+- [ ] Review complexity added this week
