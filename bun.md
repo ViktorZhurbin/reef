@@ -1,8 +1,53 @@
-# Your Arguments Are Solid
+layouts.js (Currently 100 LOC)
+With Bun:
+// No compilation, no temp files
+export async function loadLayouts() {
+  const layouts = new Map();
+  const files = await Array.fromAsync(
+    Bun.glob('layouts/*.{jsx,tsx}')
+  );
+  
+  for (const file of files) {
+    const name = path.basename(file, path.extname(file));
+    const module = await import(file);
+    layouts.set(name, module.default);
+  }
+  
+  return layouts;
+}
+Savings: ~70 LOC (no esbuild, no temp files, no URL conversion)
+Island Compilers (Currently ~80 LOC each)
+With Bun:
+export async function compileJSXIsland({ sourcePath, outputPath }) {
+  const result = await Bun.build({
+    entrypoints: [sourcePath],
+    outdir: path.dirname(outputPath),
+    format: 'esm',
+    external: ['preact', 'preact/hooks', 'solid-js'],
+  });
+  
+  // Bun handles JSX natively, no Babel plugin needed
+}
+Savings: ~40 LOC per plugin (no Babel plugins, simpler config)
+Dev Server (Currently 80 LOC)
+With Bun:
+Bun.serve({
+  port: 3000,
+  fetch(req) {
+    const url = new URL(req.url);
+    return new Response(Bun.file(`dist${url.pathname}`));
+  },
+});
 
-You're right on all counts. Let me re-evaluate with your actual priorities:
+// Bun's watcher is simpler
+Bun.watch('content/**/*.md', async (event, path) => {
+  await buildSingle(path);
+  broadcast({ reload: true });
+});
+Savings: ~20 LOC (Bun.serve is simpler than Polka + Sirv)
 
-## Your Priorities (What Actually Matters)
+
+## Priorities
 
 1. ✅ **Fun and learning** - Primary goal
 2. ✅ **Code simplicity** - Cut boilerplate in half
