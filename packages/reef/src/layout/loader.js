@@ -1,26 +1,26 @@
-import { rmSync } from "node:fs";
-import { access, glob } from "node:fs/promises";
-import { basename, extname, join } from "node:path";
+import { basename, extname, resolve } from "node:path";
 import { styleText } from "node:util";
 import { LAYOUTS_DIR } from "../constants/dir.js";
-import { compileJSX } from "../utils/compile-jsx.js";
-import { resolveTempDir } from "../utils/tempDir.js";
 
 /**
  * @import { LayoutComponent } from '../types/layout.js';
  */
 
 /**
- * Discover, compile, and load all JSX layouts
+ * Discover and load all JSX layouts
  * @returns {Promise<Map<string, LayoutComponent>>} Map of layout name to render function
  */
 export async function loadLayouts() {
 	/** @type {Map<string, LayoutComponent>} */
 	const layouts = new Map();
 
-	// Check if layouts directory exists
+	const glob = new Bun.Glob("*.{jsx,tsx}");
+	const layoutFiles = [];
+
 	try {
-		await access(LAYOUTS_DIR);
+		for await (const fileName of glob.scan(LAYOUTS_DIR)) {
+			layoutFiles.push(fileName);
+		}
 	} catch (e) {
 		const err = /** @type {NodeJS.ErrnoException} */ (e);
 
@@ -32,41 +32,32 @@ export async function loadLayouts() {
 		throw err;
 	}
 
-	// Ensure a clean temp dir
-	const tempDirPath = resolveTempDir(LAYOUTS_DIR);
-	rmSync(tempDirPath, { recursive: true, force: true });
-
-	// Process layouts concurrently using Array.fromAsync + glob
-	await Array.fromAsync(
-		glob(join(LAYOUTS_DIR, "**/*.{jsx,tsx}")),
-		async (sourceFilePath) => {
-			const fileName = basename(sourceFilePath);
-			const layoutName = basename(fileName, extname(fileName));
-
-			try {
-				// Compile and load layout module
-				const layoutModule = await compileJSX(sourceFilePath);
-
-				if (!layoutModule.default) {
-					throw new Error(
-						`Layout ${fileName} must have a default export function`,
-					);
-				}
-
-				layouts.set(layoutName, layoutModule.default);
-			} catch (e) {
-				const err = /** @type {NodeJS.ErrnoException} */ (e);
-
-				throw new Error(`Failed to load layout ${fileName}: ${err.message}`);
-			}
-		},
-	);
-
-	// Validate results
-	if (layouts.size === 0) {
+	// Error if no layout files found
+	if (layoutFiles.length === 0) {
 		throw new Error(
 			`No layout files found in ${LAYOUTS_DIR}\nCreate at least default.jsx`,
 		);
+	}
+
+	// Load each layout
+	for (const fileName of layoutFiles) {
+		const layoutName = basename(fileName, extname(fileName));
+		try {
+			const layoutPath = resolve(LAYOUTS_DIR, fileName);
+			const layoutModule = await import(layoutPath);
+
+			if (!layoutModule.default) {
+				throw new Error(
+					`Layout ${fileName} must have a default export function`,
+				);
+			}
+
+			layouts.set(layoutName, layoutModule.default);
+		} catch (e) {
+			const err = /** @type {NodeJS.ErrnoException} */ (e);
+
+			throw new Error(`Failed to load layout ${fileName}: ${err.message}`);
+		}
 	}
 
 	console.info(

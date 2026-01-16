@@ -1,4 +1,4 @@
-import type { BuildOptions } from "esbuild";
+import type { BuildConfig } from "bun";
 
 export type SupportedFramework = "solid" | "preact";
 
@@ -19,7 +19,7 @@ export interface IslandComponent {
 
 export type IslandCompilerConfig = {
 	framework: SupportedFramework;
-	getBuildConfig: (ssr?: boolean) => Partial<BuildOptions>;
+	getBuildConfig: (ssr?: boolean) => Partial<BuildConfig>;
 };
 
 export type ImportMap = Record<string, string>;
@@ -42,7 +42,7 @@ export type IslandPluginConfig = {
 	framework: SupportedFramework;
 	defaultDir: string;
 	elementSuffix: string;
-	getBuildConfig: (ssr?: boolean) => Partial<BuildOptions>;
+	getBuildConfig: (ssr?: boolean) => Partial<BuildConfig>;
 	assets?: Asset[];
 	importMap: ImportMap;
 	hydrateFnString: string;

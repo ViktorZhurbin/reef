@@ -1,16 +1,15 @@
 import { styleText } from "node:util";
-import * as esbuild from "esbuild";
 import { FrameworkConfig } from "../framework-config.js";
 
 /**
- * @import { Plugin } from "esbuild"
+ * @import { BunPlugin } from "bun"
  * @import { SupportedFramework } from "../../../types/island.js"
  */
 
 /**
  * esbuild plugin to stub out CSS imports for SSR
  * CSS is not needed for server-side rendering
- * @type { Plugin }
+ * @type {BunPlugin}
  */
 const cssStubPlugin = {
 	name: "css-stub",
@@ -46,19 +45,21 @@ export async function compileIslandSSR({ sourcePath, framework }) {
 		// so that framework-specific transformations happen first
 		const mergedPlugins = [...(buildConfig.plugins ?? []), cssStubPlugin];
 
-		const result = await esbuild.build({
-			entryPoints: [sourcePath],
-			bundle: true,
-			format: "esm", // ESM for Node.js dynamic import
-			platform: "node",
-			target: "node24",
+		const result = await Bun.build({
+			entrypoints: [sourcePath],
+			format: "esm",
+			minify: false,
+			packages: "external",
+			target: "node", // Match reef's node requirement
 			write: false, // Keep in memory
 			...buildConfig,
 			plugins: mergedPlugins, // Override plugins with merged list
 		});
 
+		const code = await result.outputs[0].text();
+
 		// Return the compiled code as a string
-		return result.outputFiles?.[0].text || "";
+		return code || "";
 	} catch (e) {
 		const err = /** @type {NodeJS.ErrnoException} */ (e);
 

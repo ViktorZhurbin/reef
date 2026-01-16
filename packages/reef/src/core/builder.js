@@ -1,5 +1,4 @@
-import { cp, glob, mkdir, rm } from "node:fs/promises";
-import { join, relative } from "node:path";
+import { cp, mkdir, rm } from "node:fs/promises";
 import { styleText } from "node:util";
 import { OUTPUT_DIR, PAGES_DIR, PUBLIC_DIR } from "../constants/dir.js";
 import { layouts } from "../layout/registry.js";
@@ -50,45 +49,32 @@ export async function buildAll(options = {}) {
 	const jsxFilePaths = [];
 	const outputMap = new Map(); // htmlPath → sourceFile (for conflict detection)
 
-	try {
-		await Array.fromAsync(
-			glob(join(PAGES_DIR, "**/*.{md,jsx,tsx}")),
-			(filePath) => {
-				const relativePath = relative(PAGES_DIR, filePath);
+	const glob = new Bun.Glob("**/*.{md,jsx,tsx}");
 
-				const htmlPath = relativePath.replace(/\.(md|[jt]sx)$/, ".html");
+	for await (const relativePath of glob.scan(PAGES_DIR)) {
+		const htmlPath = relativePath.replace(/\.(md|[jt]sx)$/, ".html");
 
-				// Detect conflicts inline
-				if (outputMap.has(htmlPath)) {
-					const existingFile = outputMap.get(htmlPath);
-					const errorMessage = [
-						styleText("yellow", "⚠ Duplicate route conflict detected."),
-						`\n${styleText("yellow", "Remove/rename one of the conflicting files to continue:")}`,
-						`\n - ${PAGES_DIR}/${existingFile}`,
-						`\n - ${PAGES_DIR}/${relativePath}`,
-					].join("");
+		// Detect conflicts inline
+		if (outputMap.has(htmlPath)) {
+			const existingFile = outputMap.get(htmlPath);
+			const errorMessage = [
+				styleText("yellow", "⚠ Duplicate route conflict detected."),
+				`\n${styleText("yellow", "Remove/rename one of the conflicting files to continue:")}`,
+				`\n - ${PAGES_DIR}/${existingFile}`,
+				`\n - ${PAGES_DIR}/${relativePath}`,
+			].join("");
 
-					throw new Error(errorMessage);
-				}
-
-				outputMap.set(htmlPath, relativePath);
-
-				// Categorize by type for building
-				if (relativePath.endsWith(".md")) {
-					mdFilePaths.push(relativePath);
-				} else {
-					jsxFilePaths.push(relativePath);
-				}
-			},
-		);
-	} catch (e) {
-		const err = /** @type {NodeJS.ErrnoException} */ (e);
-
-		// Directory doesn't exist, return empty array
-		if (err.code === "ENOENT") {
-			return [];
+			throw new Error(errorMessage);
 		}
-		throw err;
+
+		outputMap.set(htmlPath, relativePath);
+
+		// Categorize by type for building
+		if (relativePath.endsWith(".md")) {
+			mdFilePaths.push(relativePath);
+		} else {
+			jsxFilePaths.push(relativePath);
+		}
 	}
 
 	// Build all collected files

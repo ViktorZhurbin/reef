@@ -1,4 +1,3 @@
-import { access } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { styleText } from "node:util";
@@ -48,29 +47,27 @@ async function findReefData(filePath) {
 	while (true) {
 		const reefPath = join(currentDir, "reef.js");
 
-		try {
-			await access(reefPath);
+		// Check if reef.js exists using Bun's native file API
+		const reefExists = await Bun.file(reefPath).exists();
 
-			const reefUrl = pathToFileURL(reefPath).href;
+		if (reefExists) {
+			try {
+				const reefUrl = pathToFileURL(reefPath).href;
 
-			// Cache-busting in dev mode to pick up file changes
-			const importPath =
-				process.env.NODE_ENV === "development"
-					? `${reefUrl}?t=${Date.now()}`
-					: reefUrl;
+				// Cache-busting in dev mode to pick up file changes
+				const importPath =
+					process.env.NODE_ENV === "development"
+						? `${reefUrl}?t=${Date.now()}`
+						: reefUrl;
 
-			const reefModule = await import(importPath);
+				const reefModule = await import(importPath);
 
-			if (reefModule.default) {
-				return reefModule.default;
-			}
-		} catch (e) {
-			const err = /** @type {NodeJS.ErrnoException} */ (e);
+				if (reefModule.default) {
+					return reefModule.default;
+				}
+			} catch (e) {
+				const err = /** @type {NodeJS.ErrnoException} */ (e);
 
-			// If the file simply doesn't exist, that's fine. Continue.
-			if (err.code === "ENOENT") {
-				// Continue to next iteration
-			} else {
 				console.error(
 					styleText("red", `Error loading configuration at ${reefPath}`),
 				);

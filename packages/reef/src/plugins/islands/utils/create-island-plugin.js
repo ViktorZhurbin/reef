@@ -34,11 +34,12 @@ export function createIslandPlugin({ framework }) {
 			 * Hook: Called during build to discover, compile, and copy components
 			 */
 			async onBuild({ outputDir = OUTPUT_DIR }) {
-				discoveredComponents = await processJSXIslands({
-					sourceDir,
-					outputDir,
-					framework,
-				});
+				discoveredComponents =
+					(await processJSXIslands({
+						sourceDir,
+						outputDir,
+						framework,
+					})) ?? [];
 			},
 
 			getAssets() {

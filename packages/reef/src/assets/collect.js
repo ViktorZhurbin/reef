@@ -1,5 +1,4 @@
 import { join } from "node:path";
-import * as esbuild from "esbuild";
 import { defaultPlugins } from "../plugins/defaultPlugins.js";
 
 /**
@@ -15,16 +14,13 @@ let cachedLiveReloadJs = null;
 async function getLiveReloadAsset() {
 	if (cachedLiveReloadJs) return cachedLiveReloadJs;
 
-	const result = await esbuild.build({
-		entryPoints: [join(import.meta.dirname, "../dev/live-reload.js")],
-		write: false,
-		bundle: true,
-		format: "esm",
-		target: "node22",
-		logLevel: "warning",
+	const liveReloadBundle = await Bun.build({
+		entrypoints: [join(import.meta.dirname, "../dev/live-reload.js")],
+		target: "browser",
+		minify: true,
 	});
 
-	cachedLiveReloadJs = result.outputFiles[0].text;
+	cachedLiveReloadJs = await liveReloadBundle.outputs[0].text();
 
 	return cachedLiveReloadJs;
 }

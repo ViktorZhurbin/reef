@@ -1,5 +1,3 @@
-import { mkdir, writeFile } from "node:fs/promises";
-import { dirname } from "node:path";
 import { collectAssets } from "../assets/collect.js";
 import { injectAssets } from "../assets/inject.js";
 import { defaultPlugins } from "../plugins/defaultPlugins.js";
@@ -27,7 +25,5 @@ export async function writeHtmlPage(html, outputPath) {
 	// 3. Inject assets and ensure DOCTYPE
 	const finalHtml = injectAssets(processedHtml, { assets, mergedImportMap });
 
-	// 4. Write to disk
-	await mkdir(dirname(outputPath), { recursive: true });
-	await writeFile(outputPath, finalHtml);
+	await Bun.write(outputPath, finalHtml);
 }

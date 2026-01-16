@@ -1,4 +1,3 @@
-import { access, glob, mkdir } from "node:fs/promises";
 import { basename, extname, join } from "node:path";
 import { styleText } from "node:util";
 import { FrameworkConfig } from "../framework-config.js";
@@ -16,16 +15,21 @@ import { compileIsland } from "./compile-island.js";
  * 	framework: SupportedFramework;
  * }} options
  *
- * @returns {Promise<IslandComponent[]>}
+ * @returns {Promise<IslandComponent[] | undefined>}
  */
 export async function processJSXIslands({ sourceDir, outputDir, framework }) {
 	const OUTPUT_COMPONENTS_DIR = "components";
 
 	const { elementSuffix } = FrameworkConfig[framework];
 
+	// Discover island files using Bun.Glob
+	const glob = new Bun.Glob("*.{jsx,tsx}");
+	const jsxFiles = [];
+
 	try {
-		// 1. Check if islands directory exists
-		await access(sourceDir);
+		for await (const fileName of glob.scan(sourceDir)) {
+			jsxFiles.push(fileName);
+		}
 	} catch (e) {
 		const err = /** @type {NodeJS.ErrnoException} */ (e);
 
@@ -39,75 +43,72 @@ export async function processJSXIslands({ sourceDir, outputDir, framework }) {
 		throw err;
 	}
 
-	// 2. Prepare output directory
-	const outputComponentsDir = join(outputDir, OUTPUT_COMPONENTS_DIR);
-	await mkdir(outputComponentsDir, { recursive: true });
-
-	// 3. Glob files and process them using Array.fromAsync
-	// This iterates over the glob generator and runs the async mapper for each file
+	/** @type IslandComponent[] */
 	const discoveredComponents = [];
 	const compiledIslands = [];
 
-	await Array.fromAsync(
-		glob(join(sourceDir, "**/*.{jsx,tsx}")),
-		async (sourcePath) => {
-			const fileName = basename(sourcePath);
-			const elementName = getElementName(fileName, elementSuffix);
-			const outputFileName = `${elementName}.js`;
-			const outputPath = join(outputComponentsDir, outputFileName);
+	if (jsxFiles.length === 0) return discoveredComponents;
 
-			try {
-				const compilationResult = await compileIsland({
-					sourcePath,
-					outputPath,
-					framework,
-				});
+	const outputComponentsDir = join(outputDir, OUTPUT_COMPONENTS_DIR);
 
-				/** @type {IslandComponent} */
-				const component = {
-					elementName,
-					outputPath: `/${OUTPUT_COMPONENTS_DIR}/${outputFileName}`,
-					framework,
-					ssrCode: compilationResult?.ssrCode || null,
-				};
+	for (const fileName of jsxFiles) {
+		const elementName = getElementName(fileName, elementSuffix);
+		const outputFileName = `${elementName}.js`;
 
-				// Add CSS path if it exists
-				if (compilationResult?.cssOutputPath) {
-					const cssFileName = basename(compilationResult.cssOutputPath);
-					component.cssPath = `/${OUTPUT_COMPONENTS_DIR}/${cssFileName}`;
-				}
+		const sourcePath = join(sourceDir, fileName);
+		const outputPath = join(outputComponentsDir, outputFileName);
 
-				discoveredComponents.push(component);
-				compiledIslands.push({ sourcePath, elementName });
-			} catch (e) {
-				const err = /** @type {NodeJS.ErrnoException} */ (e);
+		try {
+			const compilationResult = await compileIsland({
+				sourcePath,
+				outputPath,
+				framework,
+			});
 
-				throw new Error(`Failed to process island ${fileName}: ${err.message}`);
+			/** @type {IslandComponent} */
+			const component = {
+				elementName,
+				outputPath: `/${OUTPUT_COMPONENTS_DIR}/${outputFileName}`,
+				framework,
+				ssrCode: compilationResult?.ssrCode || null,
+			};
+
+			// Add CSS path if it exists
+			if (compilationResult?.cssOutputPath) {
+				const cssFileName = basename(compilationResult.cssOutputPath);
+				component.cssPath = `/${OUTPUT_COMPONENTS_DIR}/${cssFileName}`;
 			}
-		},
-	);
 
-	// Log compiled islands
-	if (compiledIslands.length > 0) {
-		console.info(
-			styleText(
-				"green",
-				`✓ Compiled ${compiledIslands.length} island${
-					compiledIslands.length > 1 ? "s" : ""
-				}:`,
-			),
-		);
-		for (const { sourcePath, elementName } of compiledIslands) {
-			console.info(
-				`  ${styleText("cyan", sourcePath)} → ${styleText(
-					"magenta",
-					`<${elementName}>`,
-				)}`,
-			);
+			discoveredComponents.push(component);
+			compiledIslands.push({ sourcePath, elementName });
+		} catch (e) {
+			const err = /** @type {NodeJS.ErrnoException} */ (e);
+
+			throw new Error(`Failed to process island ${fileName}: ${err.message}`);
 		}
-	}
 
-	return discoveredComponents;
+		// Log compiled islands
+		if (compiledIslands.length > 0) {
+			console.info(
+				styleText(
+					"green",
+					`✓ Compiled ${compiledIslands.length} island${
+						compiledIslands.length > 1 ? "s" : ""
+					}:`,
+				),
+			);
+			for (const { sourcePath, elementName } of compiledIslands) {
+				console.info(
+					`  ${styleText("cyan", sourcePath)} → ${styleText(
+						"magenta",
+						`<${elementName}>`,
+					)}`,
+				);
+			}
+		}
+
+		return discoveredComponents;
+	}
 }
 
 /**

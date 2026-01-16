@@ -1,8 +1,9 @@
 import { watch } from "node:fs/promises";
 import { join } from "node:path";
 import { styleText } from "node:util";
-import polka from "polka";
-import sirv from "sirv";
+import { Hono } from "hono";
+import { serveStatic } from "hono/bun";
+import { streamSSE } from "hono/streaming";
 import { CONFIG_FILE } from "../constants/config.js";
 import { LAYOUTS_DIR, OUTPUT_DIR, PAGES_DIR } from "../constants/dir.js";
 import { buildJSXPage } from "../core/build-jsx-page.js";
@@ -23,23 +24,34 @@ export async function startDevServer() {
 	console.info(`Server at ${styleText("cyan", `http://localhost:${PORT}`)}`);
 
 	// Track SSE connections
+	/** @type {Set<import('hono/streaming').SSEStreamingApi>} */
 	const connections = new Set();
 
-	const server = polka()
-		.get("/events", (req, res) => {
-			res.writeHead(200, {
-				"Content-Type": "text/event-stream",
-				"Cache-Control": "no-cache",
-			});
-			connections.add(res);
-			req.on("close", () => connections.delete(res));
-		})
-		.use(sirv(OUTPUT_DIR, { dev: true }))
-		.listen(PORT);
+	const app = new Hono();
 
-	server.server.on("error", (err) => {
-		console.error("Server error:", err.message);
-		process.exit(1);
+	// SSE endpoint for live reload
+	app.get("/events", (c) => {
+		return streamSSE(c, async (stream) => {
+			connections.add(stream);
+
+			stream.onAbort(() => {
+				connections.delete(stream);
+			});
+
+			while (true) {
+				await stream.sleep(1000);
+			}
+		});
+	});
+
+	app.use("/*", serveStatic({ root: OUTPUT_DIR }));
+
+	const server = Bun.serve({
+		port: PORT,
+		fetch: app.fetch,
+		development: true,
+		// SSE connections need to stay open indefinitely for live reload
+		idleTimeout: 0, // Disable timeout (or set to 300 for 5 minutes)
 	});
 
 	// Watch config file for changes
@@ -48,7 +60,7 @@ export async function startDevServer() {
 			const watcher = watch(CONFIG_FILE);
 			for await (const _event of watcher) {
 				console.info(styleText("yellow", "\n⚙️  Config changed, restarting..."));
-				server.server.close();
+				server.stop();
 				process.exit(0);
 			}
 		} catch {
@@ -124,13 +136,10 @@ export async function startDevServer() {
 
 	// Helper to notify all connections to reload
 	function notifyReload() {
-		for (const res of connections) {
-			try {
-				res.write(`data: ${LiveReloadEvents.Reload}\n\n`);
-			} catch {
-				// Connection closed, will be cleaned up on 'close' event
-				connections.delete(res);
-			}
+		for (const stream of connections) {
+			stream.writeSSE({ data: LiveReloadEvents.Reload }).catch(() => {
+				connections.delete(stream);
+			});
 		}
 	}
 }

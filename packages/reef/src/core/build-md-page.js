@@ -1,4 +1,3 @@
-import { readFile } from "node:fs/promises";
 import { styleText } from "node:util";
 import matter from "gray-matter";
 import { marked } from "marked";
@@ -21,7 +20,7 @@ export async function buildMdPage(sourceFileName, options = {}) {
 
 		const allLayouts = layouts.getAll();
 
-		const sourceFileContent = await readFile(sourceFilePath, "utf-8");
+		const sourceFileContent = await Bun.file(sourceFilePath).text();
 		const { data: meta, content: markdown } = matter(sourceFileContent);
 
 		// Resolve which layout to use

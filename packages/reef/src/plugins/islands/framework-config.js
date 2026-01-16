@@ -43,8 +43,10 @@ export const FrameworkConfig = {
 		elementSuffix: "-preact",
 
 		getBuildConfig: () => ({
-			jsx: "automatic",
-			jsxImportSource: "preact",
+			jsx: {
+				importSource: "preact",
+				runtime: "automatic",
+			},
 			external: ["preact", "preact/hooks", "preact/jsx-runtime"],
 		}),
 		importMap: {

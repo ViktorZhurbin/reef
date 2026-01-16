@@ -1,8 +1,8 @@
+import { resolve } from "node:path";
 import { styleText } from "node:util";
 import { renderToString } from "preact-render-to-string";
 import { layouts } from "../layout/registry.js";
 import { resolveLayout } from "../layout/resolver.js";
-import { compileJSX } from "../utils/compile-jsx.js";
 import { builderShell } from "./builder-shell.js";
 import { writeHtmlPage } from "./write-html-page.js";
 
@@ -19,7 +19,10 @@ export async function buildJSXPage(sourceFileName, options = {}) {
 
 		const allLayouts = layouts.getAll();
 
-		const pageModule = await compileJSX(sourceFilePath);
+		// Dynamic import with cache busting for dev mode
+		// Query param forces fresh load when file changes (bypasses module cache)
+		const absolutePath = resolve(sourceFilePath);
+		const pageModule = await import(`${absolutePath}?t=${Date.now()}`);
 
 		if (!pageModule.default || typeof pageModule.default !== "function") {
 			throw new Error(

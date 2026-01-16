@@ -1,11 +1,6 @@
 #!/bin/bash
 
-# Use bun if available, otherwise fall back to node
-if command -v bun &> /dev/null; then
-  RUNTIME="bun"
-else
-  RUNTIME="node"
-fi
+RUNTIME="bun"
 
 if [ "$1" = "build" ]; then
   exec $RUNTIME "$(dirname "$0")/../src/cli/build.js" "$@"
