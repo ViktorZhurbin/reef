@@ -21,6 +21,16 @@ export interface PluginScriptContext {
 }
 
 /**
+ * Context passed to plugin transform hook
+ */
+export interface PluginTransformContext {
+	/** HTML content to transform */
+	content: string;
+	/** Output file path (for debugging) */
+	filePath: string;
+}
+
+/**
  * Asset (script or link) to inject into page
  */
 export interface Asset {
@@ -67,6 +77,12 @@ export interface ReefPlugin {
 	 * Use context.pageContent to determine which assets are needed
 	 */
 	getAssets?(context: PluginScriptContext): Promise<Asset[]>;
+
+	/**
+	 * Hook: Transform HTML before writing to disk
+	 * Allows plugins to modify HTML markup (e.g., wrapping components)
+	 */
+	transform?(context: PluginTransformContext): Promise<string>;
 }
 
 /**

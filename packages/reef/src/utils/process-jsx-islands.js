@@ -14,6 +14,7 @@ import { styleText } from "node:util";
  * @param {string} options.outputDir - Build output directory
  * @param {string} options.elementSuffix - Suffix for custom element names
  * @param {Function} options.compileIsland - Compiler function
+ * @param {string} options.framework - Framework identifier (e.g., 'preact', 'solid')
  * @returns {Promise<IslandComponent[]>} Array of discovered components
  */
 export async function processJSXIslands({
@@ -21,6 +22,7 @@ export async function processJSXIslands({
 	outputDir,
 	elementSuffix,
 	compileIsland,
+	framework,
 }) {
 	const OUTPUT_COMPONENTS_DIR = "components";
 
@@ -56,13 +58,13 @@ export async function processJSXIslands({
 				const compilationResult = await compileIsland({
 					sourcePath,
 					outputPath,
-					elementName,
 				});
 
 				/** @type {IslandComponent} */
 				const component = {
 					elementName,
 					outputPath: `/${OUTPUT_COMPONENTS_DIR}/${outputFileName}`,
+					framework,
 				};
 
 				// Add CSS path if it exists

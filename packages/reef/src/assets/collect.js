@@ -1,6 +1,6 @@
 import { join } from "node:path";
 import * as esbuild from "esbuild";
-import { defaultPlugins } from "../constants/plugins.js";
+import { defaultPlugins } from "../plugins/defaultPlugins.js";
 
 /**
  * Centralized asset and import map collection

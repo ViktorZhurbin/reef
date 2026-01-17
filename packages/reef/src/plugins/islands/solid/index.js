@@ -1,11 +1,11 @@
-import { OUTPUT_DIR } from "../../constants/dir.js";
-import { generateAssetsForUsedComponents } from "../../utils/generate-assets-for-used-components.js";
-import { processJSXIslands } from "../../utils/process-jsx-islands.js";
+import { OUTPUT_DIR } from "../../../constants/dir.js";
+import { processJSXIslands } from "../../../utils/process-jsx-islands.js";
+import { wrapWithIsland } from "../../../utils/wrap-with-island.js";
 import { compileSolidIsland } from "./jsx-compiler.js";
 
 /**
- * @import { IslandComponent } from '../../types/island.js';
- * @import { ReefPlugin, IslandPluginOptions, PluginBuildContext, PluginScriptContext } from '../../types/plugin.js';
+ * @import { IslandComponent } from '../../../types/island.js';
+ * @import { ReefPlugin, IslandPluginOptions, PluginBuildContext, PluginTransformContext } from '../../../types/plugin.js';
  */
 
 const DEFAULT_ISLANDS_DIR = "islands-solid";
@@ -42,12 +42,13 @@ export function solidIslands(options = {}) {
 				outputDir,
 				elementSuffix: "-solid",
 				compileIsland: compileSolidIsland,
+				framework: "solid",
 			});
 		},
 
 		/**
 		 * Hook: Returns import map configuration for Solid.js runtime from CDN
-		 * @returns {Promise<import('../../types/plugin.js').ImportMapConfig|null>} Import map config or null
+		 * @returns {Promise<import('../../../types/plugin.js').ImportMapConfig|null>} Import map config or null
 		 */
 		async getImportMap() {
 			if (discoveredComponents.length === 0) return null;
@@ -56,19 +57,18 @@ export function solidIslands(options = {}) {
 				imports: {
 					"solid-js": "https://esm.sh/solid-js",
 					"solid-js/web": "https://esm.sh/solid-js/web",
-					"solid-element": "https://esm.sh/solid-element",
 				},
 			};
 		},
 
 		/**
-		 * Hook: Returns assets to inject into pages
-		 * Only injects assets for components actually used on the page
-		 * @param {PluginScriptContext} context - Script context
-		 * @returns {Promise<import('../../types/plugin.js').Asset[]>} Array of assets
+		 * Hook: Transform HTML to wrap components in <is-land> tags
+		 * @param {PluginTransformContext} context - Transform context
+		 * @returns {Promise<string>} Transformed HTML
 		 */
-		async getAssets({ pageContent }) {
-			return generateAssetsForUsedComponents(discoveredComponents, pageContent);
+		async transform({ content }) {
+			if (discoveredComponents.length === 0) return content;
+			return wrapWithIsland(content, discoveredComponents, "on:visible");
 		},
 	};
 }

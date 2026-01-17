@@ -2,7 +2,7 @@ import { cp, glob, mkdir, rm } from "node:fs/promises";
 import { join, relative } from "node:path";
 import { styleText } from "node:util";
 import { OUTPUT_DIR, PAGES_DIR, PUBLIC_DIR } from "../constants/dir.js";
-import { defaultPlugins } from "../constants/plugins.js";
+import { defaultPlugins } from "../plugins/defaultPlugins.js";
 import { formatMs } from "../utils/format.js";
 import { buildJSXPage } from "./build-jsx-page.js";
 import { buildMdPage } from "./build-md-page.js";

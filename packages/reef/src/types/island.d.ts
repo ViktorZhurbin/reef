@@ -8,4 +8,6 @@ export interface IslandComponent {
 	outputPath: string;
 	/** Optional path to CSS file (e.g., '/components/counter-preact.css') */
 	cssPath?: string;
+	/** Framework identifier (e.g., 'preact', 'solid') */
+	framework: string;
 }

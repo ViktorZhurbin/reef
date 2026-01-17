@@ -2,6 +2,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import { collectAssets } from "../assets/collect.js";
 import { injectAssets } from "../assets/inject.js";
+import { defaultPlugins } from "../plugins/defaultPlugins.js";
 
 /**
  * @import { ReefPlugin } from '../types/plugin.js';
@@ -14,14 +15,26 @@ import { injectAssets } from "../assets/inject.js";
  * @param {string} outputPath - Absolute path to output file
  */
 export async function writeHtmlPage(html, outputPath) {
-	// Collect assets and import maps (includes auto-injected live reload in dev)
+	// 1. Run transform hooks before asset collection
+	let processedHtml = html;
+	for (const plugin of defaultPlugins) {
+		if (plugin.transform) {
+			processedHtml = await plugin.transform({
+				content: processedHtml,
+				filePath: outputPath,
+			});
+		}
+	}
+
+	// 2. Collect assets from transformed HTML
 	const { assets, importMapConfigs } = await collectAssets({
-		pageContent: html,
+		pageContent: processedHtml,
 	});
 
-	// Inject assets and ensure DOCTYPE
-	const finalHtml = injectAssets(html, { assets, importMapConfigs });
+	// 3. Inject assets and ensure DOCTYPE
+	const finalHtml = injectAssets(processedHtml, { assets, importMapConfigs });
 
+	// 4. Write to disk
 	await mkdir(dirname(outputPath), { recursive: true });
 	await writeFile(outputPath, finalHtml);
 }

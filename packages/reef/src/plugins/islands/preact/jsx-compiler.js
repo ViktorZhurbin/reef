@@ -1,22 +1,14 @@
 import { basename, dirname } from "node:path";
 import * as esbuild from "esbuild";
-import { writeBuildOutput } from "../../utils/write-build-output.js";
+import { writeBuildOutput } from "../../../utils/write-build-output.js";
 
-export async function compilePreactIsland({
-	sourcePath,
-	outputPath,
-	elementName,
-}) {
+export async function compilePreactIsland({ sourcePath, outputPath }) {
 	/**
-	 * Virtual entry for Preact using preact-custom-element
+	 * Virtual entry for Preact - exports component for is-land lazy loading
 	 */
 	const virtualEntry = `
-    import register from 'preact-custom-element';
     import Component from './${basename(sourcePath)}';
-
-    // Register component as custom element
-    // Empty array = no observed attributes (or infer from propTypes)
-    register(Component, '${elementName}', [], { shadow: false });
+    export default Component;
   `.trim();
 
 	const result = await esbuild.build({
@@ -32,12 +24,7 @@ export async function compilePreactIsland({
 		outfile: outputPath, // Helper for CSS generation
 		jsx: "automatic",
 		jsxImportSource: "preact",
-		external: [
-			"preact",
-			"preact/hooks",
-			"preact/jsx-runtime",
-			"preact-custom-element",
-		],
+		external: ["preact", "preact/hooks", "preact/jsx-runtime"],
 		logLevel: "warning",
 	});
 

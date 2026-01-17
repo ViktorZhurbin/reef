@@ -3,7 +3,7 @@ import { basename, dirname } from "node:path";
 import tsPreset from "@babel/preset-typescript";
 import solidPreset from "babel-preset-solid";
 import * as esbuild from "esbuild";
-import { writeBuildOutput } from "../../utils/write-build-output.js";
+import { writeBuildOutput } from "../../../utils/write-build-output.js";
 
 /**
  * A tiny esbuild plugin to handle Solid JSX via Babel
@@ -29,25 +29,13 @@ const solidBabelPlugin = {
 	},
 };
 
-export async function compileSolidIsland({
-	sourcePath,
-	outputPath,
-	elementName,
-}) {
+export async function compileSolidIsland({ sourcePath, outputPath }) {
+	/**
+	 * Virtual entry for Solid - exports component for is-land lazy loading
+	 */
 	const virtualEntry = `
-    import { customElement, noShadowDOM } from 'solid-element';
     import Component from './${basename(sourcePath)}';
-
-		const defaultPropsKeys = Object.keys(Component.defaultProps ?? {});
-		const defaultProps = defaultPropsKeys.reduce((acc, curr) => {
-			acc[curr] = undefined;
-			return acc;
-		}, {});
-
-    customElement('${elementName}', defaultProps, (props) => {
-    	noShadowDOM();
-			return Component(props);
-		});
+    export default Component;
   `.trim();
 
 	const result = await esbuild.build({
@@ -62,7 +50,7 @@ export async function compileSolidIsland({
 		write: false,
 		outfile: outputPath, // Helper for CSS generation
 		plugins: [solidBabelPlugin], // Let esbuild handle CSS natively
-		external: ["solid-js", "solid-js/web", "solid-element"],
+		external: ["solid-js", "solid-js/web"],
 		logLevel: "warning",
 	});
 
