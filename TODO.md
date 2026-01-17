@@ -1,99 +1,8 @@
 # Reef Roadmap
 
-## 🎯 Current Focus
-
-Build reef's docs site with reef (dogfooding)
-
-Then: Clean up based on real usage pain points
-
 ## 🏗️ Core Architecture
 
-### Code Organization
-
-- [ ] Reorganize lib/ and utils/ by domain (routing, compilation, plugins)
-- [ ] Extract shared compilation logic (layouts + islands + pages)
-
-### Configuration
-
-- [ ] Make paths configurable via reef.config.js
-  - `contentDir`, `pagesDir`, `layoutsDir`, `outputDir`
-  - Currently hardcoded in constants/dir.js
-
-### Error Handling
-
-- [ ] Better error messages ("Island X used but not found in islands-*/")
-- [ ] Validate JSX compilation errors with helpful context
-- [ ] Catch routing conflicts (pages/about.jsx + content/about.md)
-
----
-
-### Refactoring
-- use import.meta
-
-#### 1. Getting Current File Path (Most Useful)
-Current approach:
-import { fileURLToPath } from "node:url";
-import path from "node:path";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Use __dirname
-const configPath = path.join(__dirname, '../config.js');
-With import.meta.dirname (Node 20.11+):
-// That's it - no imports needed
-const configPath = path.join(import.meta.dirname, '../config.js');
-Where in Reef:
-lib/dev.js - loading live-reload.js
-lib/layouts.js - temp directory handling
-Any file that needs to know "where am I?"
-
-#### 2. Import Resolution
-Current approach:
-import { pathToFileURL } from "node:url";
-
-const moduleUrl = pathToFileURL(tempPath).href;
-const module = await import(`${moduleUrl}?t=${Date.now()}`);
-
-With import.meta.resolve (Node 20.6+):
-
-const moduleUrl = import.meta.resolve(tempPath);
-const module = await import(`${moduleUrl}?t=${Date.now()}`);
-
-Simpler, but honestly not a huge win.
-
-#### 3. Cache Busting (What You Already Do)
-// You already do this correctly:
-await import(`${moduleUrl}?t=${Date.now()}`);
-
-// import.meta.url changes per file, useful for:
-const uniqueId = import.meta.url + Date.now();
-Actual Simplification Potential
-Realistic savings in Reef: ~10-15 LOC total
-Most of your code doesn't need file path introspection. The main wins would be in:
-dev.js (loading live-reload script)
-layouts.js (temp director
-
----
-
-## 🎨 Features
-
-### JSX Pages v2 - Layout Support
-
-- [ ] Add metadata export pattern for pages/
-  ```jsx
-  export const metadata = {
-    title: 'Page Title',
-    layout: 'default',
-    // custom fields...
-  };
-  ```
-- [ ] Implement data cascade: default > reef.js > metadata
-- [ ] Support CSS imports!
-- [ ] Pass all metadata fields as props to layout
-- [ ] Detect full-page vs content-only (warn if layout + )
-
-### Island Lazy Loading
+### is-land
 
 Decision: Try is-land library first
 
@@ -106,6 +15,34 @@ Alternative: Build custom ReefIsland if is-land feels limiting
 - [ ] IntersectionObserver for on:visible
 - [ ] requestIdleCallback for on:idle
 - [ ] Promise-based state machine (~60 LOC)
+
+### Code Organization
+
+- [ ] Extract shared compilation logic (layouts + islands + pages)
+
+---
+
+## 🎨 Features
+
+### JSX Pages v2 - Layout Support
+
+- [ ] Support CSS imports!
+- [ ] Support component imports!
+
+
+
+
+### Configuration
+
+- [ ] Make paths configurable via reef.config.js
+  - `contentDir`, `pagesDir`, `layoutsDir`, `outputDir`
+  - Currently hardcoded in constants/dir.js
+
+### Error Handling
+
+- [ ] Better error messages ("Island X used but not found in islands-*/")
+- [ ] Validate JSX compilation errors with helpful context
+- [ ] Catch routing conflicts (pages/about.jsx + content/about.md)
 
 ### Developer Experience
 
