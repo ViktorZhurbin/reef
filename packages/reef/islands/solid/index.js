@@ -3,7 +3,7 @@ import {
 	generateAssetsForUsedComponents,
 	processJSXIslands,
 } from "../../utils/index.js";
-import { compileJSXIsland } from "./jsx-compiler.js";
+import { compileSolidIsland } from "./jsx-compiler.js";
 
 /**
  * @import { IslandComponent } from '../../types/island.js';
@@ -43,7 +43,7 @@ export function solidIslands(options = {}) {
 				islandsDir,
 				outputDir,
 				elementSuffix: "-solid",
-				compileIsland: compileJSXIsland,
+				compileIsland: compileSolidIsland,
 			});
 		},
 

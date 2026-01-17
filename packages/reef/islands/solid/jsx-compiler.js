@@ -29,7 +29,7 @@ const solidBabelPlugin = {
 	},
 };
 
-export async function compileJSXIsland({
+export async function compileSolidIsland({
 	sourcePath,
 	outputPath,
 	elementName,

@@ -2,7 +2,7 @@ import { basename, dirname } from "node:path";
 import * as esbuild from "esbuild";
 import { writeBuildOutput } from "../../utils/index.js";
 
-export async function compileJSXIsland({
+export async function compilePreactIsland({
 	sourcePath,
 	outputPath,
 	elementName,

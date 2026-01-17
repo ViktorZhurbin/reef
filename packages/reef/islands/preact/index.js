@@ -3,7 +3,7 @@ import {
 	generateAssetsForUsedComponents,
 	processJSXIslands,
 } from "../../utils/index.js";
-import { compileJSXIsland } from "./jsx-compiler.js";
+import { compilePreactIsland } from "./jsx-compiler.js";
 
 /**
  * @import { IslandComponent } from '../../types/island.js';
@@ -43,7 +43,7 @@ export function preactIslands(options = {}) {
 				islandsDir,
 				outputDir,
 				elementSuffix: "-preact",
-				compileIsland: compileJSXIsland,
+				compileIsland: compilePreactIsland,
 			});
 		},
 
