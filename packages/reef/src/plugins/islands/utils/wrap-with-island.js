@@ -1,4 +1,4 @@
-import { castValue, stripDataPrefix, toCamelCase } from "./client-runtime.js";
+import { castValue, toCamelCase } from "./client-runtime.js";
 import { renderIslandSSR } from "./render-ssr.js";
 
 /**
@@ -90,11 +90,12 @@ export async function wrapWithIsland(
 function extractProps(attrsString) {
 	/** @type Record<string, unknown> */
 	const props = {};
-	const attrRegex = /([a-z0-9-]+)=["']([^"']*)["']/g;
 
-	for (const [, key, value] of attrsString.matchAll(attrRegex)) {
-		const attrName = stripDataPrefix(key);
-		const camelKey = toCamelCase(attrName);
+	const dataAttrRegex = /data-([a-z0-9-]+)=["']([^"']*)["']/g;
+
+	for (const [, key, value] of attrsString.matchAll(dataAttrRegex)) {
+		// key is already everything after 'data-' thanks to the capture group
+		const camelKey = toCamelCase(key);
 
 		props[camelKey] = castValue(value);
 	}

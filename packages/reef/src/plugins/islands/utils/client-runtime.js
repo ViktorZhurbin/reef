@@ -1,21 +1,16 @@
 export function getPropsFromAttributes(attributes) {
 	const props = {};
 
+	const DATA_PREFIX = "data-";
 	for (const attr of attributes) {
-		const propName = stripDataPrefix(attr.name);
+		if (attr.name.startsWith(DATA_PREFIX)) {
+			const propName = attr.name.slice(DATA_PREFIX.length);
 
-		props[propName] = castValue(attr.value);
+			props[propName] = castValue(attr.value);
+		}
 	}
 
 	return props;
-}
-
-export function stripDataPrefix(attrName) {
-	const DATA_PREFIX = "data-";
-
-	return attrName.startsWith(DATA_PREFIX)
-		? attrName.slice(DATA_PREFIX.length)
-		: attrName;
 }
 
 export function toCamelCase(str) {
@@ -40,7 +35,7 @@ export function castValue(val) {
 		try {
 			return JSON.parse(val);
 		} catch {
-			return val;
+			return undefined;
 		}
 	}
 
