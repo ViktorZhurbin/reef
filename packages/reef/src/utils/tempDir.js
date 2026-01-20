@@ -1,7 +1,6 @@
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
-import { unlink } from "node:fs/promises";
 import { join, parse, relative, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { pathToFileURL } from "node:url";
 
 export const TEMP_ROOT = join(process.cwd(), "node_modules/.reef-temp");
 
@@ -9,6 +8,13 @@ export function cleanupTempDir() {
 	try {
 		rmSync(TEMP_ROOT, { recursive: true, force: true });
 	} catch {}
+}
+
+export function setupCleanupOnExit() {
+	// Ensures cleanup happens on success or Ctrl+C
+	process.on("exit", cleanupTempDir);
+	process.on("SIGINT", () => process.exit());
+	process.on("SIGTERM", () => process.exit());
 }
 
 /**
@@ -63,43 +69,17 @@ function writeTempFile(sourcePath, content, subpath = "") {
 }
 
 /**
- * Utility to convert URL back to disk path and delete it safely.
- * @param {string} tempUrl
- */
-function removeTempFile(tempUrl) {
-	// Strip the query string (?t=...) before converting to a path
-	const urlObj = new URL(tempUrl);
-	const pathToDelete = fileURLToPath(urlObj);
-
-	// We don't 'await' this so the main thread stays fast.
-	// The OS will handle the deletion in the background.
-	unlink(pathToDelete).catch(() => {
-		/* Silently ignore: file might be locked or already gone */
-	});
-}
-
-/**
  * Cleanly imports a generated string as a module and removes the trace.
  * @param {string} sourcePath
  * @param {string} content
  * @param {string} [subpath]
- *
  */
 export async function getModule(sourcePath, content, subpath) {
-	let fileUrl;
+	// Write to a temp file
+	const fileUrl = writeTempFile(sourcePath, content, subpath);
 
-	try {
-		// Write to a temp file
-		fileUrl = writeTempFile(sourcePath, content, subpath);
+	// Load it into the V8 engine
+	const module = await import(fileUrl);
 
-		// Load it into the V8 engine
-		const module = await import(fileUrl);
-
-		return module;
-	} finally {
-		// Always cleanup
-		if (fileUrl) {
-			removeTempFile(fileUrl);
-		}
-	}
+	return module;
 }
