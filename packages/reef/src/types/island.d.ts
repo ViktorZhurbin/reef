@@ -27,20 +27,23 @@ export type ImportMap = Record<string, string>;
 /**
  * Asset (script or link) to inject into page
  */
-export interface Asset {
-	/** Tag name */
-	tag: "script" | "link";
-	/** Tag attributes */
-	attrs: Record<string, string | undefined>;
-	/** Inline content (for script tags) */
-	content?: string;
-}
+export type Asset =
+	| string
+	| {
+			/** Tag name */
+			tag: "script" | "link";
+			/** Tag attributes */
+			attrs: Record<string, string | undefined>;
+			/** Inline content (for script tags) */
+			content?: string;
+	  };
 
 export type IslandPluginConfig = {
 	framework: SupportedFramework;
 	defaultDir: string;
 	elementSuffix: string;
 	getBuildConfig: (ssr?: boolean) => Partial<BuildOptions>;
+	assets?: Asset[];
 	importMap: ImportMap;
 	hydrateFnString: string;
 	renderSSR: (

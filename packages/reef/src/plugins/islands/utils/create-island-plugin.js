@@ -16,10 +16,10 @@ import { wrapWithIsland } from "./wrap-with-island.js";
  * @returns {(options?: IslandPluginOptions) => ReefPlugin} Plugin factory
  */
 export function createIslandPlugin({ framework }) {
-	const { defaultDir, importMap } = FrameworkConfig[framework];
+	const config = FrameworkConfig[framework];
 
 	return (options = {}) => {
-		const { sourceDir = defaultDir } = options;
+		const { sourceDir = config.defaultDir } = options;
 
 		/** @type {IslandComponent[]} */
 		let discoveredComponents = [];
@@ -41,13 +41,17 @@ export function createIslandPlugin({ framework }) {
 				});
 			},
 
+			getAssets() {
+				return config.assets ?? [];
+			},
+
 			/**
 			 * Hook: Returns import map configuration for framework runtime from CDN
 			 */
 			getImportMap() {
 				if (discoveredComponents.length === 0) return null;
 
-				return importMap;
+				return config.importMap;
 			},
 
 			/**

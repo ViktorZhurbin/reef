@@ -29,6 +29,8 @@ export function generateImportMapHtml({ mergedImportMap }) {
 export function generateAssetsHtml({ assets = [] }) {
 	return assets
 		.map((asset) => {
+			if (typeof asset === "string") return asset;
+
 			const attrs = attributesToString(asset.attrs);
 
 			// Handle <link> tags (Void element, no closing tag)

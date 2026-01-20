@@ -16,7 +16,7 @@ import { defaultPlugins } from "../plugins/defaultPlugins.js";
  * @param {string} params.pageContent - Page content to scan for component usage
  * @returns {Promise<{ assets: Asset[]; mergedImportMap: ImportMap;}>}
  */
-export async function collectAssets({ pageContent }) {
+export async function collectAssets() {
 	/** @type {ImportMap} */
 	const mergedImportMap = {};
 	/** @type {Asset[]} */
@@ -30,7 +30,7 @@ export async function collectAssets({ pageContent }) {
 		}
 
 		if (plugin.getAssets) {
-			const pluginAssets = await plugin.getAssets({ pageContent });
+			const pluginAssets = plugin.getAssets();
 			assets.push(...pluginAssets);
 		}
 	}

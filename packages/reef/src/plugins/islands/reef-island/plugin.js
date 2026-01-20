@@ -12,7 +12,7 @@ export function reefIsland() {
 	return {
 		name: "reef-island",
 
-		async getAssets() {
+		getAssets() {
 			return [
 				{
 					tag: "script",

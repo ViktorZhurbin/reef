@@ -56,7 +56,7 @@ export interface ReefPlugin {
 	 * Hook: Returns assets (scripts/links) to inject into pages
 	 * Use context.pageContent to determine which assets are needed
 	 */
-	getAssets?(context: PluginScriptContext): Promise<Asset[]>;
+	getAssets?(): Asset[];
 
 	/**
 	 * Hook: Transform HTML before writing to disk

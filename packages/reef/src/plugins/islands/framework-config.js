@@ -2,6 +2,7 @@
  * @import { SupportedFramework, IslandPluginConfig } from "../../types/island.js";
  */
 
+import { generateHydrationScript } from "solid-js/web";
 import { getSolidBabelPlugin } from "./solid/babel-plugin.js";
 
 /**
@@ -17,6 +18,7 @@ export const FrameworkConfig = {
 			plugins: [getSolidBabelPlugin(ssr)],
 			external: ["solid-js", "solid-js/web"],
 		}),
+		assets: [generateHydrationScript()],
 		importMap: {
 			"solid-js": "https://esm.sh/solid-js",
 			"solid-js/web": "https://esm.sh/solid-js/web",
@@ -28,15 +30,10 @@ export const FrameworkConfig = {
 		`,
 
 		renderSSR: async (Component, props) => {
-			const { renderToString, generateHydrationScript } = await import(
-				"solid-js/web"
-			);
+			const { renderToString } = await import("solid-js/web");
 
-			const hydrationScript = generateHydrationScript();
 			// @ts-expect-error: type later, maybe
-			const html = renderToString(() => Component(props));
-
-			return hydrationScript + html;
+			return renderToString(() => Component(props));
 		},
 	},
 

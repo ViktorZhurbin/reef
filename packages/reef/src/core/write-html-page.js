@@ -22,9 +22,7 @@ export async function writeHtmlPage(html, outputPath) {
 	}
 
 	// 2. Collect assets from transformed HTML
-	const { assets, mergedImportMap } = await collectAssets({
-		pageContent: processedHtml,
-	});
+	const { assets, mergedImportMap } = await collectAssets();
 
 	// 3. Inject assets and ensure DOCTYPE
 	const finalHtml = injectAssets(processedHtml, { assets, mergedImportMap });
