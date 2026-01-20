@@ -22,6 +22,11 @@ export const FrameworkConfig = {
 			"solid-js/web": "https://esm.sh/solid-js/web",
 		},
 
+		hydrateFnString: `
+			const { hydrate } = await import("solid-js/web");
+			hydrate(() => Component(props), container);
+		`,
+
 		renderSSR: async (Component, props) => {
 			const { renderToString, generateHydrationScript } = await import(
 				"solid-js/web"
@@ -50,6 +55,11 @@ export const FrameworkConfig = {
 			"preact/hooks": "https://esm.sh/preact/hooks",
 			"preact/jsx-runtime": "https://esm.sh/preact/jsx-runtime",
 		},
+
+		hydrateFnString: `
+			const { h, hydrate } = await import("preact");
+			hydrate(h(Component, props), container);
+		`,
 
 		renderSSR: async (Component, props) => {
 			const { h } = await import("preact");

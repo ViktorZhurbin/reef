@@ -1,4 +1,5 @@
 import { basename } from "node:path";
+import { FrameworkConfig } from "../framework-config.js";
 /**
  * @import { SupportedFramework } from "../../../types/island.js"
  */
@@ -9,41 +10,17 @@ import { basename } from "node:path";
  * @param {SupportedFramework} framework
  */
 export function createMountingEntry(sourcePath, framework) {
+	const config = FrameworkConfig[framework];
 	const componentImport = `import Component from './${basename(sourcePath)}';`;
 
-	let renderFn = "";
-
-	switch (framework) {
-		case "preact": {
-			renderFn = `
-				export default async (container) => {
-					const { h, hydrate } = await import("preact");
-					const props = getDataAttributes(container.attributes);
-					hydrate(h(Component, props), container);
-				}
-			`;
-
-			break;
+	const hydrateFn = `
+		export default async (container) => {
+			const props = getDataAttributes(container.attributes);
+			${config.hydrateFnString}
 		}
+	`;
 
-		case "solid": {
-			renderFn = `
-				export default async (container) => {
-					const { hydrate } = await import("solid-js/web");
-					const props = getDataAttributes(container.attributes);
-					hydrate(() => Component(props), container);
-				}
-			`;
-
-			break;
-		}
-	}
-
-	if (!renderFn) {
-		throw new Error(`Unknown framework: ${framework}`);
-	}
-
-	return [componentImport, renderFn, getDataAttributes.toString()]
+	return [componentImport, hydrateFn, getDataAttributes.toString()]
 		.map((item) => item.trim())
 		.join("\n");
 }
