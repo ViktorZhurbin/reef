@@ -56,8 +56,8 @@ A minimal markdown-based static site generator with optional interactive islands
 
 ## Islands
 
-<counter-solid></counter-solid>
-<counter-preact></counter-preact>
+<counter-solid initial="8"></counter-solid>
+<counter-preact data-initial="2"></counter-preact>
 
 Add interactivity only where you need it:
 

@@ -1,4 +1,9 @@
 import { basename } from "node:path";
+import { castValue } from "../../../utils/castValue.js";
+import {
+	getPropsFromAttributes,
+	stripDataPrefix,
+} from "../../../utils/props.js";
 import { FrameworkConfig } from "../framework-config.js";
 /**
  * @import { SupportedFramework } from "../../../types/island.js"
@@ -15,27 +20,18 @@ export function createMountingEntry(sourcePath, framework) {
 
 	const hydrateFn = `
 		export default async (container) => {
-			const props = getDataAttributes(container.attributes);
+			const props = getPropsFromAttributes(container.attributes);
 			${config.hydrateFnString}
 		}
 	`;
 
-	return [componentImport, hydrateFn, getDataAttributes.toString()]
+	return [
+		componentImport,
+		hydrateFn,
+		getPropsFromAttributes.toString(),
+		castValue.toString(),
+		stripDataPrefix.toString(),
+	]
 		.map((item) => item.trim())
 		.join("\n");
-}
-
-// Extract props from data-* attributes
-function getDataAttributes(attributes) {
-	const props = {};
-
-	const DATA_PREFIX = "data-";
-	for (const attr of attributes) {
-		if (attr.name.startsWith(DATA_PREFIX)) {
-			const propName = attr.name.slice(DATA_PREFIX.length);
-			props[propName] = attr.value;
-		}
-	}
-
-	return props;
 }

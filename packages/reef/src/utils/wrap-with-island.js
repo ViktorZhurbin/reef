@@ -1,4 +1,6 @@
 import { renderIslandSSR } from "../plugins/islands/utils/render-ssr.js";
+import { castValue } from "./castValue.js";
+import { stripDataPrefix, toCamelCase } from "./props.js";
 
 /**
  * @import { IslandComponent } from '../types/island.js';
@@ -95,39 +97,14 @@ function extractProps(attrsString) {
 	/** @type Record<string, unknown> */
 	const props = {};
 	// Match data-prop="value" or data-prop='value'
-	const attrRegex = /data-([a-z0-9-]+)=["']([^"']*)["']/g;
+	const attrRegex = /([a-z0-9-]+)=["']([^"']*)["']/g;
 
 	for (const [, key, value] of attrsString.matchAll(attrRegex)) {
-		// kebab-case to camelCase
-		const camelKey = key.replace(/-([a-z0-9])/g, (_, char) =>
-			char.toUpperCase(),
-		);
+		const attrName = stripDataPrefix(key);
+		const camelKey = toCamelCase(attrName);
 
 		props[camelKey] = castValue(value);
 	}
 
 	return props;
-}
-
-/**
- * Casts a string attribute value to its proper JS type.
- */
-function castValue(val) {
-	if (val === "true") return true;
-	if (val === "false") return false;
-	if (val === "" || val === null) return true; // Boolean attribute shorthand: data-is-active
-
-	// Attempt to parse as Number
-	if (val !== "" && !Number.isNaN(val)) return Number(val);
-
-	// Attempt to parse as JSON (for arrays/objects)
-	if (val.startsWith("{") || val.startsWith("[")) {
-		try {
-			return JSON.parse(val);
-		} catch {
-			return val;
-		}
-	}
-
-	return val;
 }
