@@ -24,12 +24,25 @@ Build Reef's own docs site with Reef!
 
 ## 🛠️ Fixes & Updates
 
-### islands folder conventions & naming
+### Islands folder conventions & naming
 
+```
 islands/solid/Counter.tsx   → <solid-counter>
 islands/solid/TodoList.tsx  → <solid-todo-list>
 islands/preact/Header.tsx   → <preact-header>
+```
 
+```ts
+// packages/reef/types/islands.d.ts
+
+declare namespace JSX {
+  interface IntrinsicElements {
+    'solid-counter': { initial?: number };
+    'solid-todo-list': { items?: string[] };
+    'preact-header': { title?: string };
+  }
+}
+```
 
 ## 🎨 Features
 
