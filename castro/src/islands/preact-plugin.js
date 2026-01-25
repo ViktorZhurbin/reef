@@ -16,7 +16,7 @@ import { processIslands } from "./processor.js";
 import { wrapWithIsland } from "./wrapper.js";
 
 /**
- * @import { CastroPlugin, ComponentMap } from '../types.d.ts'
+ * @import { CastroPlugin, ComponentsMap } from '../types.d.ts'
  */
 
 /**
@@ -28,8 +28,8 @@ import { wrapWithIsland } from "./wrapper.js";
 export function preactIslands(options = {}) {
 	const { sourceDir = ISLANDS_DIR } = options;
 
-	/** @type {ComponentMap} */
-	let componentMap = new Map();
+	/** @type {ComponentsMap} */
+	let componentsMap = new Map();
 
 	return {
 		name: "islands-preact",
@@ -41,7 +41,7 @@ export function preactIslands(options = {}) {
 		 * Build hook: discover, compile, and copy components
 		 */
 		async onBuild({ outputDir = OUTPUT_DIR }) {
-			componentMap = await processIslands({
+			componentsMap = await processIslands({
 				sourceDir,
 				outputDir,
 			});
@@ -51,18 +51,30 @@ export function preactIslands(options = {}) {
 		 * Return import map for Preact runtime
 		 */
 		getImportMap() {
-			if (componentMap.size === 0) return null;
+			if (componentsMap.size === 0) return null;
 
 			return PreactConfig.importMap;
 		},
 
 		/**
 		 * Transform HTML: wrap components in <castro-island> tags and render SSR
+		 *
+		 * Returns island CSS as Asset objects for unified injection.
 		 */
 		async transform({ content }) {
-			if (componentMap.size === 0) return content;
+			if (componentsMap.size === 0) {
+				return { html: content, assets: [] };
+			}
 
-			return await wrapWithIsland(content, componentMap);
+			const { html, cssFiles } = await wrapWithIsland(content, componentsMap);
+
+			// Convert CSS paths to Asset objects (plugin owns asset format)
+			const assets = cssFiles.map((href) => ({
+				tag: "link",
+				attrs: { rel: "stylesheet", href },
+			}));
+
+			return { html, assets };
 		},
 	};
 }

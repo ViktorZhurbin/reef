@@ -73,6 +73,9 @@ async function compileIslandClient({ sourcePath, outputPath }) {
 		format: "esm",
 		target: "es2020",
 		write: false,
+		loader: {
+			".css": "css", // Extract CSS into separate files
+		},
 		...buildConfig,
 		external: [...(buildConfig.external ?? []), CLIENT_RUNTIME_ALIAS],
 	});
@@ -159,7 +162,7 @@ async function compileIslandSSR({ sourcePath }) {
 			bundle: true,
 			format: "esm",
 			platform: "node",
-			target: "node24",
+			target: "node22",
 			write: false,
 			...buildConfig,
 			plugins: [...(buildConfig.plugins ?? []), cssStubPlugin],

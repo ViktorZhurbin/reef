@@ -17,7 +17,7 @@ import { getPropsFromAttributeString } from "./client-runtime.js";
 import { renderIslandSSR } from "./ssr-renderer.js";
 
 /**
- * @import { IslandComponent } from '../types.d.ts'
+ * @import { ComponentsMap } from '../types.d.ts'
  */
 
 /**
@@ -28,28 +28,34 @@ import { renderIslandSSR } from "./ssr-renderer.js";
  * - <preact-counter lenin:awake> → Immediate hydration
  * - <preact-counter comrade:visible> → Hydrate when visible (default)
  *
+ * Also collects CSS files used by islands on this page.
+ *
  * @param {string} content - HTML content to transform
- * @param {Map<string, IslandComponent>} componentMap - Known island components
- * @returns {Promise<string>} Transformed HTML
+ * @param {ComponentsMap} componentsMap - Known island components
+ * @returns {Promise<{ html: string, cssFiles: string[] }>} Transformed HTML and CSS files
  */
-export async function wrapWithIsland(content, componentMap) {
-	if (!componentMap.size) return content;
+export async function wrapWithIsland(content, componentsMap) {
+	if (!componentsMap.size) return { html: content, cssFiles: [] };
 
 	// Build regex to find all component tags
-	const tagNames = Array.from(componentMap.keys()).join("|");
+	const tagNames = Array.from(componentsMap.keys()).join("|");
 	const tagRegex = new RegExp(
 		`<(${tagNames})([^>]*)>([\\s\\S]*?)<\\/\\1>`,
 		"gi",
 	);
 
 	const matches = Array.from(content.matchAll(tagRegex));
-	if (matches.length === 0) return content;
+	if (matches.length === 0) return { html: content, cssFiles: [] };
+
+	// Collect CSS files used by islands on this page (deduplicated)
+	/** @type {Set<string>} */
+	const cssFiles = new Set();
 
 	// Process all matches and prepare replacements
 	const replacements = await Promise.all(
 		matches.map(async (match) => {
 			const [fullMatch, tagName, attrs, innerContent] = match;
-			const component = componentMap.get(tagName.toLowerCase());
+			const component = componentsMap.get(tagName.toLowerCase());
 
 			if (!component) {
 				return {
@@ -89,6 +95,11 @@ export async function wrapWithIsland(content, componentMap) {
 				cleanedAttrs = " " + cleanedAttrs;
 			}
 
+			// Collect CSS file for this component (if it has one)
+			if (component.cssPath) {
+				cssFiles.add(component.cssPath);
+			}
+
 			// Handle no:pasaran - static only, no client JS
 			if (directive === "no:pasaran") {
 				// Return just the static HTML without castro-island wrapper
@@ -97,11 +108,11 @@ export async function wrapWithIsland(content, componentMap) {
 			}
 
 			// Build the wrapper markup with castro-island
+			// CSS is collected above and will be injected in <head> by the page writer
 			const markup = `
 <div class="castro-island-container">
   <castro-island ${directive} import="${component.outputPath}">
     <${component.elementName}${cleanedAttrs}>${staticHtml}</${component.elementName}>
-    ${component.cssPath ? `<link rel="stylesheet" href="${component.cssPath}">` : ""}
   </castro-island>
 </div>`.trim();
 
@@ -123,7 +134,10 @@ export async function wrapWithIsland(content, componentMap) {
 
 	result += content.slice(lastIndex);
 
-	return result;
+	return {
+		html: result,
+		cssFiles: Array.from(cssFiles),
+	};
 }
 
 /**

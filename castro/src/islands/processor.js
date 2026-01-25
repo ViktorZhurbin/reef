@@ -21,22 +21,22 @@ import { compileIsland } from "./compiler.js";
 import { PreactConfig } from "./preact-config.js";
 
 /**
- * @import { IslandComponent, ComponentMap } from '../types.d.ts'
+ * @import { IslandComponent, ComponentsMap } from '../types.d.ts'
  */
 
 /**
  * Process all island files in a directory
  *
  * @param {{ sourceDir: string, outputDir: string }} options
- * @returns {Promise<ComponentMap>} Discovered and compiled components
+ * @returns {Promise<ComponentsMap>} Discovered and compiled components
  */
 export async function processIslands({ sourceDir, outputDir }) {
 	const OUTPUT_COMPONENTS_DIR = "components";
 
 	const { elementPrefix } = PreactConfig;
 
-	/** @type {ComponentMap} */
-	const componentMap = new Map();
+	/** @type {ComponentsMap} */
+	const componentsMap = new Map();
 
 	try {
 		// Check if islands directory exists
@@ -49,7 +49,7 @@ export async function processIslands({ sourceDir, outputDir }) {
 				styleText("red", `Islands directory not found:`),
 				styleText("magenta", sourceDir),
 			);
-			return componentMap;
+			return componentsMap;
 		}
 		throw err;
 	}
@@ -90,7 +90,7 @@ export async function processIslands({ sourceDir, outputDir }) {
 					component.cssPath = `/${OUTPUT_COMPONENTS_DIR}/${cssFileName}`;
 				}
 
-				componentMap.set(component.elementName, component);
+				componentsMap.set(component.elementName, component);
 				compiledIslands.push({ sourcePath, elementName });
 			} catch (e) {
 				const err = /** @type {NodeJS.ErrnoException} */ (e);
@@ -117,7 +117,7 @@ export async function processIslands({ sourceDir, outputDir }) {
 		}
 	}
 
-	return componentMap;
+	return componentsMap;
 }
 
 /**

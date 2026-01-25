@@ -62,7 +62,7 @@ export async function loadLayouts() {
 			const layoutName = basename(fileName, extname(fileName));
 
 			try {
-				const layoutModule = await compileJSX(sourceFilePath);
+				const { module: layoutModule } = await compileJSX(sourceFilePath);
 
 				if (!layoutModule.default) {
 					throw new Error(messages.errors.islandNoExport(fileName));

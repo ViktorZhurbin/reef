@@ -18,7 +18,9 @@ export type CastroPlugin = {
 	getAssets?: () => Asset[];
 	getImportMap?: () => ImportMap | null;
 	onBuild?: (ctx: { outputDir: string; contentDir: string }) => Promise<void>;
-	transform?: (ctx: { content: string }) => Promise<string>;
+	transform?: (ctx: {
+		content: string;
+	}) => Promise<{ html: string; assets: Asset[] }>;
 };
 
 export type IslandComponent = {
@@ -44,4 +46,4 @@ export type CastroConfig = {
 	plugins?: CastroPlugin[];
 };
 
-export type ComponentMap = Map<string, IslandComponent>;
+export type ComponentsMap = Map<string, IslandComponent>;

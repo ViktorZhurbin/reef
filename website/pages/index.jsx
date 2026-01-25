@@ -1,6 +1,8 @@
+import "./index.css";
+
 export const meta = {
-	layout: "none"
-}
+	layout: "none",
+};
 
 export default function Home() {
 	return (
@@ -19,7 +21,6 @@ export default function Home() {
 					href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=PT+Sans:wght@400;700&display=swap"
 					rel="stylesheet"
 				/>
-				<link rel="stylesheet" href="/landing.css" />
 			</head>
 			<body>
 				<section className="hero">
@@ -64,8 +65,9 @@ export default function Home() {
 					<div className="section-header">
 						<h2>The Revolutionary Directives</h2>
 						<p>
-							Learn how modern SSGs work by reading ~1500 lines of well-commented
-							code. Three hydration strategies. Zero configuration.
+							Learn how modern SSGs work by reading ~1500 lines of
+							well-commented code. Three hydration strategies. Zero
+							configuration.
 						</p>
 					</div>
 
@@ -78,21 +80,24 @@ export default function Home() {
 								</div>
 							</div>
 							<p className="directive-description">
-								Component renders at build time. No JavaScript shipped to client.
-								Pure static HTML for maximum performance.
+								Component renders at build time. No JavaScript shipped to
+								client. Pure static HTML for maximum performance.
 							</p>
 							<div className="directive-demo">
 								<preact-counter no:pasaran data-initial="5"></preact-counter>
 							</div>
 							<p className="directive-note">
-								↑ Try clicking. Nothing happens. Zero JS was sent to your browser.
+								↑ Try clicking. Nothing happens. Zero JS was sent to your
+								browser.
 							</p>
 						</div>
 
 						<div className="directive-card immediate">
 							<div className="directive-header">
 								<div className="directive-name">lenin:awake</div>
-								<div className="directive-slogan">"The leader is always ready"</div>
+								<div className="directive-slogan">
+									"The leader is always ready"
+								</div>
 							</div>
 							<p className="directive-description">
 								Component becomes interactive immediately on page load. Full
@@ -102,7 +107,8 @@ export default function Home() {
 								<preact-counter lenin:awake data-initial="10"></preact-counter>
 							</div>
 							<p className="directive-note">
-								↑ This counter is interactive immediately. JS loaded on page load.
+								↑ This counter is interactive immediately. JS loaded on page
+								load.
 							</p>
 						</div>
 
@@ -114,11 +120,14 @@ export default function Home() {
 								</div>
 							</div>
 							<p className="directive-description">
-								Component hydrates when scrolled into viewport. Lazy loading with
-								IntersectionObserver. Default behavior.
+								Component hydrates when scrolled into viewport. Lazy loading
+								with IntersectionObserver. Default behavior.
 							</p>
 							<div className="directive-demo">
-								<preact-counter comrade:visible data-initial="15"></preact-counter>
+								<preact-counter
+									comrade:visible
+									data-initial="15"
+								></preact-counter>
 							</div>
 							<p className="directive-note">
 								↑ JS loads when scrolled into view. Open DevTools Network tab to
@@ -143,9 +152,9 @@ export default function Home() {
 							<div className="step-content">
 								<h3>Build Time</h3>
 								<p>
-									Castro compiles your pages and renders all islands to static HTML.
-									Every component gets server-side rendered, creating instant visual
-									content.
+									Castro compiles your pages and renders all islands to static
+									HTML. Every component gets server-side rendered, creating
+									instant visual content.
 								</p>
 							</div>
 						</div>
@@ -167,9 +176,10 @@ export default function Home() {
 							<div className="step-content">
 								<h3>Selective Hydration</h3>
 								<p>
-									JavaScript loads based on your directive. <code>no:pasaran</code>{" "}
-									stays static. <code>lenin:awake</code> hydrates immediately.{" "}
-									<code>comrade:visible</code> waits for viewport intersection.
+									JavaScript loads based on your directive.{" "}
+									<code>no:pasaran</code> stays static. <code>lenin:awake</code>{" "}
+									hydrates immediately. <code>comrade:visible</code> waits for
+									viewport intersection.
 								</p>
 							</div>
 						</div>
@@ -179,9 +189,9 @@ export default function Home() {
 							<div className="step-content">
 								<h3>Interactive Islands</h3>
 								<p>
-									Components become interactive exactly when needed. Fast initial
-									load, progressive enhancement, minimal JavaScript. This is island
-									architecture.
+									Components become interactive exactly when needed. Fast
+									initial load, progressive enhancement, minimal JavaScript.
+									This is island architecture.
 								</p>
 							</div>
 						</div>
