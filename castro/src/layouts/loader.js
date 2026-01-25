@@ -22,6 +22,7 @@ import { basename, extname, join } from "node:path";
 import { styleText } from "node:util";
 import { compileJSX } from "../build/compile-jsx.js";
 import { LAYOUTS_DIR, resolveTempDir } from "../config.js";
+import { messages } from "../messages.js";
 
 /**
  * @import { LayoutComponent } from '../types.d.ts'
@@ -43,9 +44,7 @@ export async function loadLayouts() {
 		const err = /** @type {NodeJS.ErrnoException} */ (e);
 
 		if (err.code === "ENOENT") {
-			throw new Error(
-				`Layouts directory not found: ${LAYOUTS_DIR}\nCreate it and add at least default.jsx`,
-			);
+			throw new Error(messages.errors.noLayoutsDir(LAYOUTS_DIR));
 		}
 		throw err;
 	}
@@ -66,16 +65,14 @@ export async function loadLayouts() {
 				const layoutModule = await compileJSX(sourceFilePath);
 
 				if (!layoutModule.default) {
-					throw new Error(
-						`Layout ${fileName} must have a default export function`,
-					);
+					throw new Error(messages.errors.islandNoExport(fileName));
 				}
 
 				layouts.set(layoutName, layoutModule.default);
 			} catch (e) {
 				const err = /** @type {NodeJS.ErrnoException} */ (e);
 
-				throw new Error(`Failed to load layout ${fileName}: ${err.message}`);
+				throw new Error(messages.errors.pageBuildFailed(fileName, err.message));
 			}
 		},
 	);
@@ -87,13 +84,11 @@ export async function loadLayouts() {
 		);
 	}
 
-	console.info(
-		styleText("green", "✓ Loaded layouts:"),
-		Array.from(layouts.keys()).join(", "),
-	);
+	const layoutNames = Array.from(layouts.keys()).join(", ");
+	console.info(styleText("green", messages.files.layoutsLoaded(layoutNames)));
 
 	if (!layouts.has("default")) {
-		throw new Error("Required layout 'default.jsx' not found in layouts/");
+		throw new Error(messages.errors.missingDefaultLayout());
 	}
 
 	return layouts;

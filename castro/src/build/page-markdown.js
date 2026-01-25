@@ -19,12 +19,12 @@
  */
 
 import { readFile } from "node:fs/promises";
-import { styleText } from "node:util";
 import matter from "gray-matter";
 import { marked } from "marked";
 import { renderToString } from "preact-render-to-string";
 import { layouts } from "../layouts/registry.js";
 import { resolveLayout } from "../layouts/resolver.js";
+import { messages } from "../messages.js";
 import { buildPageShell } from "./page-shell.js";
 import { writeHtmlPage } from "./page-writer.js";
 
@@ -50,9 +50,7 @@ export async function buildMarkdownPage(sourceFileName, options = {}) {
 		const layoutFn = allLayouts.get(layoutName);
 
 		if (!layoutFn) {
-			throw new Error(
-				`Layout '${styleText("magenta", layoutName)}' not found in layouts/`,
-			);
+			throw new Error(messages.errors.layoutNotFound(layoutName));
 		}
 
 		const title = meta.title || sourceFileName.replace(".md", "");

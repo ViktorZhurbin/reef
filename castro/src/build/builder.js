@@ -16,10 +16,10 @@
 
 import { cp, glob, mkdir, rm } from "node:fs/promises";
 import { join, relative } from "node:path";
-import { styleText } from "node:util";
 import { formatMs, OUTPUT_DIR, PAGES_DIR, PUBLIC_DIR } from "../config.js";
 import { defaultPlugins } from "../islands/plugins.js";
 import { layouts } from "../layouts/registry.js";
+import { messages } from "../messages.js";
 import { buildJSXPage } from "./page-jsx.js";
 import { buildMarkdownPage } from "./page-markdown.js";
 
@@ -31,6 +31,8 @@ import { buildMarkdownPage } from "./page-markdown.js";
 export async function buildAll(options = {}) {
 	const { verbose = false } = options;
 	const startTime = performance.now();
+
+	console.info(messages.build.starting);
 
 	// Initialize layouts registry
 	await layouts.load();
@@ -80,12 +82,10 @@ export async function buildAll(options = {}) {
 				// Detect route conflicts (two files producing same output)
 				if (outputMap.has(htmlPath)) {
 					const existingFile = outputMap.get(htmlPath);
-					const errorMessage = [
-						styleText("yellow", "⚠ Duplicate route conflict detected."),
-						`\n${styleText("yellow", "Remove/rename one of the conflicting files to continue:")}`,
-						`\n - ${PAGES_DIR}/${existingFile}`,
-						`\n - ${PAGES_DIR}/${relativePath}`,
-					].join("");
+					const errorMessage = messages.errors.routeConflict(
+						`${PAGES_DIR}/${existingFile}`,
+						`${PAGES_DIR}/${relativePath}`,
+					);
 
 					throw new Error(errorMessage);
 				}
@@ -123,15 +123,10 @@ export async function buildAll(options = {}) {
 	}
 
 	if (resultsCount === 0) {
-		console.warn(`No files found in ${PAGES_DIR}`);
+		console.warn(messages.build.noFiles);
 		return;
 	}
 
 	const buildTime = formatMs(performance.now() - startTime);
-	const successMessage = styleText(
-		"green",
-		`Wrote ${resultsCount} files in ${buildTime}`,
-	);
-
-	console.info(successMessage);
+	console.info(messages.build.success(`${resultsCount}`, buildTime));
 }

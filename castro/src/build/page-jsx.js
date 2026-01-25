@@ -15,10 +15,10 @@
  *   }
  */
 
-import { styleText } from "node:util";
 import { renderToString } from "preact-render-to-string";
 import { layouts } from "../layouts/registry.js";
 import { resolveLayout } from "../layouts/resolver.js";
+import { messages } from "../messages.js";
 import { compileJSX } from "./compile-jsx.js";
 import { buildPageShell } from "./page-shell.js";
 import { writeHtmlPage } from "./page-writer.js";
@@ -39,9 +39,7 @@ export async function buildJSXPage(sourceFileName, options = {}) {
 		const pageModule = await compileJSX(sourceFilePath);
 
 		if (!pageModule.default || typeof pageModule.default !== "function") {
-			throw new Error(
-				`JSX page ${sourceFileName} must have a default export function`,
-			);
+			throw new Error(messages.errors.jsxNoExport(sourceFileName));
 		}
 
 		// Extract metadata (includes layout preference)
@@ -61,9 +59,7 @@ export async function buildJSXPage(sourceFileName, options = {}) {
 			const layoutFn = allLayouts.get(layoutName);
 
 			if (!layoutFn) {
-				throw new Error(
-					`Layout '${styleText("magenta", layoutName)}' not found in layouts/`,
-				);
+				throw new Error(messages.errors.layoutNotFound(layoutName));
 			}
 
 			const title = meta.title || sourceFileName.replace(/\.[jt]sx$/, "");

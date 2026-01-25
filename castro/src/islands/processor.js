@@ -16,6 +16,7 @@
 import { access, glob, mkdir } from "node:fs/promises";
 import { basename, extname, join } from "node:path";
 import { styleText } from "node:util";
+import { messages } from "../messages.js";
 import { compileIsland } from "./compiler.js";
 import { PreactConfig } from "./preact-config.js";
 
@@ -94,7 +95,9 @@ export async function processIslands({ sourceDir, outputDir }) {
 			} catch (e) {
 				const err = /** @type {NodeJS.ErrnoException} */ (e);
 
-				throw new Error(`Failed to process island ${fileName}: ${err.message}`);
+				throw new Error(
+					messages.errors.islandBuildFailed(fileName, err.message),
+				);
 			}
 		},
 	);
@@ -102,12 +105,7 @@ export async function processIslands({ sourceDir, outputDir }) {
 	// Log compiled islands
 	if (compiledIslands.length > 0) {
 		console.info(
-			styleText(
-				"green",
-				`✓ Compiled ${compiledIslands.length} island${
-					compiledIslands.length > 1 ? "s" : ""
-				}:`,
-			),
+			styleText("green", messages.files.compiled(compiledIslands.length)),
 		);
 		for (const { sourcePath, elementName } of compiledIslands) {
 			console.info(

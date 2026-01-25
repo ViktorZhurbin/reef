@@ -7,6 +7,7 @@
 
 import { access } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
+import { messages } from "./messages.js";
 
 // ============================================================================
 // Directory Constants
@@ -52,7 +53,7 @@ export async function loadConfig() {
 		const err = /** @type {NodeJS.ErrnoException} */ (e);
 
 		if (err.code === "ENOENT") return null;
-		throw new Error(`Failed to load config: ${err.message}`);
+		throw new Error(messages.errors.configLoadFailed(err.message));
 	}
 }
 

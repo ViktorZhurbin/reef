@@ -23,6 +23,7 @@ import { buildJSXPage } from "../build/page-jsx.js";
 import { buildMarkdownPage } from "../build/page-markdown.js";
 import { CONFIG_FILE, LAYOUTS_DIR, OUTPUT_DIR, PAGES_DIR } from "../config.js";
 import { layouts } from "../layouts/registry.js";
+import { messages } from "../messages.js";
 import { LiveReloadEvents } from "./live-reload-events.js";
 
 const PORT = 3000;
@@ -33,11 +34,15 @@ const PORT = 3000;
 export async function startDevServer() {
 	process.env.NODE_ENV = "development";
 
+	console.info(messages.devServer.starting);
+
 	// Initial build
 	await buildAll();
 
-	console.info("Watching...");
-	console.info(`Server at ${styleText("cyan", `http://localhost:${PORT}`)}`);
+	console.info(
+		messages.devServer.ready(styleText("cyan", `http://localhost:${PORT}`)),
+	);
+	console.info(messages.devServer.watching);
 
 	// Track SSE connections for live reload
 	const connections = new Set();
@@ -68,7 +73,7 @@ export async function startDevServer() {
 		try {
 			const watcher = watch(CONFIG_FILE);
 			for await (const _event of watcher) {
-				console.info(styleText("yellow", "\n⚙️  Config changed, restarting..."));
+				console.info(styleText("yellow", messages.config.changed));
 				server.server?.close();
 				process.exit(0);
 			}
@@ -131,7 +136,7 @@ export async function startDevServer() {
 	}
 
 	function logFileChanged(/** @type {string} */ filePath) {
-		console.info(`${styleText("gray", "File changed:")} ${filePath}`);
+		console.info(styleText("gray", messages.files.changed(filePath)));
 	}
 
 	function notifyReload() {
