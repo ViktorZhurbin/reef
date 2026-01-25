@@ -21,7 +21,13 @@ import sirv from "sirv";
 import { buildAll } from "../build/builder.js";
 import { buildJSXPage } from "../build/page-jsx.js";
 import { buildMarkdownPage } from "../build/page-markdown.js";
-import { CONFIG_FILE, LAYOUTS_DIR, OUTPUT_DIR, PAGES_DIR } from "../config.js";
+import {
+	CONFIG_FILE,
+	ISLANDS_DIR,
+	LAYOUTS_DIR,
+	OUTPUT_DIR,
+	PAGES_DIR,
+} from "../config.js";
 import { layouts } from "../layouts/registry.js";
 import { messages } from "../messages.js";
 import { LiveReloadEvents } from "./live-reload-events.js";
@@ -107,7 +113,7 @@ export async function startDevServer() {
 	})();
 
 	// Watch layouts directory
-	const watchDirs = [LAYOUTS_DIR];
+	const watchDirs = [LAYOUTS_DIR, ISLANDS_DIR];
 
 	for (const dir of watchDirs) {
 		(async () => {
