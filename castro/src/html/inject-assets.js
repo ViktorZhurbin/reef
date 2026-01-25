@@ -12,8 +12,8 @@
  * and have it resolve to a CDN URL, no bundler needed.
  */
 
+import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import * as esbuild from "esbuild";
 import { defaultPlugins } from "../islands/plugins.js";
 
 /**
@@ -29,16 +29,12 @@ let cachedLiveReloadJs = null;
 async function getLiveReloadAsset() {
 	if (cachedLiveReloadJs) return cachedLiveReloadJs;
 
-	const result = await esbuild.build({
-		entryPoints: [join(import.meta.dirname, "../dev/live-reload.js")],
-		write: false,
-		bundle: true,
-		format: "esm",
-		target: "node22",
-		logLevel: "warning",
-	});
+	cachedLiveReloadJs = await readFile(
+		join(import.meta.dirname, "../dev/live-reload.js"),
+		"utf-8",
+	);
 
-	cachedLiveReloadJs = result.outputFiles[0].text;
+	console.log(cachedLiveReloadJs);
 
 	return cachedLiveReloadJs;
 }
@@ -56,15 +52,11 @@ export async function collectAssets() {
 
 	// Collect from plugins
 	for (const plugin of defaultPlugins) {
-		if (plugin.getImportMap) {
-			const importMap = plugin.getImportMap();
-			if (importMap) Object.assign(mergedImportMap, importMap);
-		}
+		const importMap = plugin.getImportMap?.() ?? {};
+		Object.assign(mergedImportMap, importMap);
 
-		if (plugin.getAssets) {
-			const pluginAssets = plugin.getAssets();
-			assets.push(...pluginAssets);
-		}
+		const pluginAssets = plugin.getAssets?.() ?? [];
+		assets.push(...pluginAssets);
 	}
 
 	// Auto-inject live reload in dev mode

@@ -13,14 +13,12 @@
  * one-way server→client messaging.
  */
 
-import { LiveReloadEvents } from "./live-reload-events.js";
-
 // Connect to SSE endpoint
 const events = new EventSource("/events");
 
 /** @type EventSource["onmessage"] */
 events.onmessage = (event) => {
-	if (event.data === LiveReloadEvents.Reload) {
+	if (event.data === "reload") {
 		window.location.reload();
 	}
 };

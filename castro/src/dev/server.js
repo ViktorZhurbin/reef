@@ -30,7 +30,6 @@ import {
 } from "../config.js";
 import { layouts } from "../layouts/registry.js";
 import { messages } from "../messages.js";
-import { LiveReloadEvents } from "./live-reload-events.js";
 
 const PORT = 3000;
 
@@ -148,7 +147,7 @@ export async function startDevServer() {
 	function notifyReload() {
 		for (const res of connections) {
 			try {
-				res.write(`data: ${LiveReloadEvents.Reload}\n\n`);
+				res.write(`data: reload\n\n`);
 			} catch {
 				connections.delete(res);
 			}
