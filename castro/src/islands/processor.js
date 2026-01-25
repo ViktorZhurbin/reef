@@ -21,19 +21,22 @@ import { compileIsland } from "./compiler.js";
 import { PreactConfig } from "./preact-config.js";
 
 /**
- * @import { IslandComponent } from '../types.d.ts'
+ * @import { IslandComponent, ComponentMap } from '../types.d.ts'
  */
 
 /**
  * Process all island files in a directory
  *
  * @param {{ sourceDir: string, outputDir: string }} options
- * @returns {Promise<IslandComponent[]>} Discovered and compiled components
+ * @returns {Promise<ComponentMap>} Discovered and compiled components
  */
 export async function processIslands({ sourceDir, outputDir }) {
 	const OUTPUT_COMPONENTS_DIR = "components";
 
 	const { elementPrefix } = PreactConfig;
+
+	/** @type {ComponentMap} */
+	const componentMap = new Map();
 
 	try {
 		// Check if islands directory exists
@@ -46,7 +49,7 @@ export async function processIslands({ sourceDir, outputDir }) {
 				styleText("red", `Islands directory not found:`),
 				styleText("magenta", sourceDir),
 			);
-			return [];
+			return componentMap;
 		}
 		throw err;
 	}
@@ -56,9 +59,6 @@ export async function processIslands({ sourceDir, outputDir }) {
 	await mkdir(outputComponentsDir, { recursive: true });
 
 	// Process each island file
-
-	/** @type {IslandComponent[]} */
-	const discoveredComponents = [];
 
 	/** @type {{ sourcePath: string; elementName: string; }[]} */
 	const compiledIslands = [];
@@ -90,7 +90,7 @@ export async function processIslands({ sourceDir, outputDir }) {
 					component.cssPath = `/${OUTPUT_COMPONENTS_DIR}/${cssFileName}`;
 				}
 
-				discoveredComponents.push(component);
+				componentMap.set(component.elementName, component);
 				compiledIslands.push({ sourcePath, elementName });
 			} catch (e) {
 				const err = /** @type {NodeJS.ErrnoException} */ (e);
@@ -117,7 +117,7 @@ export async function processIslands({ sourceDir, outputDir }) {
 		}
 	}
 
-	return discoveredComponents;
+	return componentMap;
 }
 
 /**
@@ -129,7 +129,7 @@ export async function processIslands({ sourceDir, outputDir }) {
  */
 function getElementName(fileName, prefix = "component") {
 	const ext = extname(fileName);
-	const baseName = basename(fileName, ext);
+	const baseName = basename(fileName, ext).toLowerCase();
 
 	return `${prefix}-${baseName}`;
 }

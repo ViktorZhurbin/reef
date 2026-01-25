@@ -29,7 +29,7 @@ export type IslandComponent = {
 };
 
 export type PageMeta = {
-	layout?: string;
+	layout?: string | "none" | false;
 	title?: string;
 	[key: string]: unknown;
 };
@@ -43,3 +43,5 @@ export type LayoutComponent = (props: {
 export type CastroConfig = {
 	plugins?: CastroPlugin[];
 };
+
+export type ComponentMap = Map<string, IslandComponent>;

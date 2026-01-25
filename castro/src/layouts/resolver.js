@@ -24,6 +24,9 @@ import { PAGES_DIR } from "../config.js";
 /**
  * Resolve which layout to use for a page
  *
+ * Note: This function is only called for pages that use layouts.
+ * Pages with layout: false or layout: "none" skip layout wrapping entirely.
+ *
  * @param {string} filePath - Path to the page file
  * @param {PageMeta} [meta] - Page metadata/frontmatter
  * @returns {Promise<string>} Layout name

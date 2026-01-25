@@ -29,19 +29,14 @@ import { renderIslandSSR } from "./ssr-renderer.js";
  * - <preact-counter comrade:visible> → Hydrate when visible (default)
  *
  * @param {string} content - HTML content to transform
- * @param {IslandComponent[]} components - Known island components
+ * @param {Map<string, IslandComponent>} componentMap - Known island components
  * @returns {Promise<string>} Transformed HTML
  */
-export async function wrapWithIsland(content, components) {
-	if (!components.length) return content;
-
-	// Build lookup map for quick component access
-	const componentMap = new Map(
-		components.map((c) => [c.elementName.toLowerCase(), c]),
-	);
+export async function wrapWithIsland(content, componentMap) {
+	if (!componentMap.size) return content;
 
 	// Build regex to find all component tags
-	const tagNames = components.map((c) => c.elementName).join("|");
+	const tagNames = Array.from(componentMap.keys()).join("|");
 	const tagRegex = new RegExp(
 		`<(${tagNames})([^>]*)>([\\s\\S]*?)<\\/\\1>`,
 		"gi",

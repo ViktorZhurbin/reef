@@ -47,9 +47,9 @@ export async function buildJSXPage(sourceFileName, options = {}) {
 
 		let layoutVNode;
 
-		// Support layout: false for pages that render full HTML themselves.
+		// Support layout: false or layout: "none" for pages that render full HTML themselves.
 		// Useful for special pages like RSS feeds, sitemaps, or custom layouts.
-		if (meta.layout === false) {
+		if (meta.layout === false || meta.layout === "none") {
 			layoutVNode = pageModule.default();
 		} else {
 			const contentVNode = pageModule.default();
