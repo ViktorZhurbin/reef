@@ -62,21 +62,22 @@ async function compileIslandClient({ sourcePath, outputPath }) {
 	const entry = createMountingEntry(sourcePath);
 	const buildConfig = config.getBuildConfig();
 
+	// Build configuration for island client bundle (browser execution)
 	const result = await esbuild.build({
 		stdin: {
-			contents: entry,
+			contents: entry, // Use generated mounting code as entry (not a file)
 			resolveDir: dirname(sourcePath),
 			loader: "js",
 		},
 		outfile: outputPath,
-		bundle: true,
-		format: "esm",
-		target: "es2020",
-		write: false,
+		bundle: true, // Bundle all dependencies into single browser-ready file
+		format: "esm", // Output ES modules (modern browsers support)
+		target: "es2020", // Browser target (supports modern JS features)
+		write: false, // Keep output in memory for processing
 		loader: {
-			".css": "css", // Extract CSS into separate files
+			".css": "css", // Extract CSS into separate files for <link> injection
 		},
-		...buildConfig,
+		...buildConfig, // Framework-specific settings (JSX config, etc.)
 		external: [...(buildConfig.external ?? []), CLIENT_RUNTIME_ALIAS],
 	});
 
@@ -157,15 +158,16 @@ async function compileIslandSSR({ sourcePath }) {
 			},
 		};
 
+		// Build configuration for island SSR (Node.js execution at build time)
 		const result = await esbuild.build({
 			entryPoints: [sourcePath],
-			bundle: true,
-			format: "esm",
-			platform: "node",
-			target: "node22",
-			write: false,
-			...buildConfig,
-			plugins: [...(buildConfig.plugins ?? []), cssStubPlugin],
+			bundle: true, // Bundle component and dependencies for execution
+			format: "esm", // Output ES modules
+			platform: "node", // Node.js platform (enables Node-specific optimizations)
+			target: "node22", // Node.js target (this code runs at build time for SSR)
+			write: false, // Keep output in memory for immediate execution
+			...buildConfig, // Framework-specific settings (JSX config, etc.)
+			plugins: [...(buildConfig.plugins ?? []), cssStubPlugin], // Stub CSS imports
 		});
 
 		return result.outputFiles?.[0].text || "";

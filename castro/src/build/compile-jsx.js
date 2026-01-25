@@ -25,19 +25,20 @@ import { createTempPath, getModule } from "../config.js";
 export async function compileJSX(sourcePath) {
 	const outputPath = createTempPath(sourcePath);
 
+	// Build configuration for pages/layouts (Node.js SSR at build time)
 	const result = await esbuild.build({
 		entryPoints: [sourcePath],
-		write: false, // Keep output in memory, don't write to disk
+		write: false, // Keep output in memory for immediate execution
 		outfile: outputPath,
 		jsx: "automatic", // Use new JSX transform (no need to import h)
 		jsxImportSource: "preact", // Auto-import JSX runtime from preact
-		bundle: true, // Include all imports in output
-		packages: "external", // Don't bundle node_modules, keep as imports
+		bundle: true, // Resolve all imports to single output
+		packages: "external", // Don't bundle node_modules (keep as imports for Node.js)
 		format: "esm", // Output ES modules
-		target: "node22", // We're running this in Node.js, not browser
+		target: "node22", // Node.js target (this code runs at build time, not in browser)
 		logLevel: "warning",
 		loader: {
-			".css": "css", // Extract CSS into separate files
+			".css": "css", // Extract CSS into separate files for injection
 		},
 	});
 
