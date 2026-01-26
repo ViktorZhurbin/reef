@@ -67,6 +67,7 @@ export async function startDevServer() {
 		})
 		// Serve static files from dist
 		.use(sirv(OUTPUT_DIR, { dev: true }))
+		// !FIXME: this causes SSE "Not Found" error
 		// 404 fallback - serve 404.html for missing pages
 		.use((req, res) => {
 			// Only serve 404.html for HTML requests (navigation, not assets)

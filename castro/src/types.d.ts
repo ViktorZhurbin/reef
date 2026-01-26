@@ -1,3 +1,5 @@
+/// <reference path="./jsx.d.ts" />
+
 /**
  * Castro Type Definitions
  */
@@ -26,7 +28,6 @@ export type CastroPlugin = {
 };
 
 export type IslandComponent = {
-	elementName: string;
 	outputPath: string;
 	cssPath?: string;
 	ssrCode: string | null;

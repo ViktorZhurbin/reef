@@ -10,8 +10,7 @@
 ## Code Style & Patterns
 - **Language**: Use ES Modules (import/export) and Node.js 24+.
 - **Formatting**: Strictly follow Biome defaults (tabs, double quotes) via `pnpm format`.
-- **Documentation**: Use JSDoc for all types and function intent (no separate .d.ts files).
-- **Reactivity**: Islands follow the convention `<preact>-<filename>` (e.g., `counter.tsx` in `islands/` becomes `<preact-counter>`).
+- **Documentation**: Use JSDoc for all types and function intent. Use .d.ts files only for reusable types.
 - **Errors**: Prefer loud startup failures (native errors) over defensive programming. Use `styleText` from `node:util` for colored terminal logs.
 - **Dependencies**: Prioritize built-in Node.js APIs over external packages to keep the footprint small.
 

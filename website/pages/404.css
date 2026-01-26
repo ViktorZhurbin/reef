@@ -2,11 +2,7 @@
 .not-found-hero {
 	position: relative;
 	min-height: 100vh;
-	background: linear-gradient(
-		135deg,
-		var(--black) 0%,
-		var(--red-dark) 100%
-	);
+	background: linear-gradient(135deg, var(--black) 0%, var(--red-dark) 100%);
 	color: var(--cream);
 	display: flex;
 	align-items: center;

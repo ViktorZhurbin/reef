@@ -15,7 +15,6 @@ import { basename, dirname } from "node:path";
 import { styleText } from "node:util";
 import * as esbuild from "esbuild";
 import { PreactConfig } from "./preact-config.js";
-import { CLIENT_RUNTIME_ALIAS } from "./runtime-plugin.js";
 
 /**
  * Compile an island component for both client and SSR
@@ -59,13 +58,20 @@ async function compileIslandClient({ sourcePath, outputPath }) {
 	const config = PreactConfig;
 
 	// Create entry point that imports component and exports mounting function
-	const entry = createMountingEntry(sourcePath);
+	const virtualEntry = `
+		import Component from './${basename(sourcePath)}';
+
+		export default async (container, props = {}) => {
+			${PreactConfig.hydrateFnString}
+		}
+	`.trim();
+
 	const buildConfig = config.getBuildConfig();
 
 	// Build configuration for island client bundle (browser execution)
 	const result = await esbuild.build({
 		stdin: {
-			contents: entry, // Use generated mounting code as entry (not a file)
+			contents: virtualEntry, // Use generated mounting code as entry (not a file)
 			resolveDir: dirname(sourcePath),
 			loader: "js",
 		},
@@ -78,47 +84,9 @@ async function compileIslandClient({ sourcePath, outputPath }) {
 			".css": "css", // Extract CSS into separate files for <link> injection
 		},
 		...buildConfig, // Framework-specific settings (JSX config, etc.)
-		external: [...(buildConfig.external ?? []), CLIENT_RUNTIME_ALIAS],
 	});
 
 	return result;
-}
-
-/**
- * Create the mounting entry point for a component
- *
- * Generates code that will be bundled and loaded when the island hydrates.
- * The generated module exports a function that:
- * 1. Reads props from data-* attributes on the container element
- * 2. Imports the framework runtime (Preact)
- * 3. Calls hydrate() to attach event listeners to the static HTML
- *
- * Example output for counter.tsx:
- *   import Component from './counter.tsx';
- *   import { getPropsFromAttributes } from 'castro/client-runtime';
- *   export default async (container) => {
- *     const props = getPropsFromAttributes(container.attributes);
- *     const { h, hydrate } = await import("preact");
- *     hydrate(h(Component, props), container);
- *   }
- *
- * @param {string} sourcePath
- * @returns {string}
- */
-function createMountingEntry(sourcePath) {
-	const componentImport = `import Component from './${basename(sourcePath)}';`;
-	const helpersImport = `import { getPropsFromAttributes } from '${CLIENT_RUNTIME_ALIAS}';`;
-
-	const hydrateFn = `
-		export default async (container) => {
-			const props = getPropsFromAttributes(container.attributes);
-			${PreactConfig.hydrateFnString}
-		}
-	`;
-
-	return [componentImport, helpersImport, hydrateFn]
-		.map((item) => item.trim())
-		.join("\n");
 }
 
 /**

@@ -19,7 +19,6 @@
 /**
  * @type {{
  * 	framework: "preact";
- * 	elementPrefix: string;
  * 	getBuildConfig: (ssr?: boolean) => esbuild.BuildOptions;
  * 	importMap: ImportsMap;
  * 	hydrateFnString: string;
@@ -28,7 +27,6 @@
  */
 export const PreactConfig = {
 	framework: "preact",
-	elementPrefix: "preact",
 
 	/**
 	 * esbuild configuration for compiling Preact components

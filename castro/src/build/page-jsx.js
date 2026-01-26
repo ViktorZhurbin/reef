@@ -19,6 +19,7 @@
 
 import { dirname } from "node:path";
 import { renderToString } from "preact-render-to-string";
+import { wrapIslandsInJSX } from "../islands/wrapper-jsx.js";
 import { layouts } from "../layouts/registry.js";
 import { resolveLayout } from "../layouts/resolver.js";
 import { messages } from "../messages.js";
@@ -55,17 +56,28 @@ export async function buildJSXPage(sourceFileName, options = {}) {
 		// Extract metadata (includes layout preference)
 		const meta = pageModule.meta || {};
 
-		let layoutVNode;
-
 		/** @type { Asset[] } */
 		let layoutCssAssets = [];
+
+		const contentVNode = pageModule.default();
+
+		// Wrap islands in JSX
+		const wrappedIsland = await wrapIslandsInJSX(sourceFilePath, contentVNode);
+
+		// Add island CSS to page assets
+		const islandCssAssets = wrappedIsland.cssFiles.map((href) => ({
+			tag: "link",
+			attrs: { rel: "stylesheet", href },
+		}));
+		pageCssAssets.push(...islandCssAssets);
+
+		let vnodeToRender;
 
 		// Support layout: false or layout: "none" for pages that render full HTML themselves.
 		// Useful for special pages like RSS feeds, sitemaps, or custom layouts.
 		if (meta.layout === false || meta.layout === "none") {
-			layoutVNode = pageModule.default();
+			vnodeToRender = wrappedIsland.vnode;
 		} else {
-			const contentVNode = pageModule.default();
 			const layoutName = await resolveLayout(sourceFilePath, meta);
 
 			const layoutFn = allLayouts.get(layoutName);
@@ -78,16 +90,16 @@ export async function buildJSXPage(sourceFileName, options = {}) {
 			layoutCssAssets = layouts.getCssAssets(layoutName);
 
 			const title = meta.title || sourceFileName.replace(/\.[jt]sx$/, "");
-			const contentHtml = renderToString(contentVNode);
+			const contentHtml = renderToString(wrappedIsland.vnode);
 
-			layoutVNode = layoutFn({
+			vnodeToRender = layoutFn({
 				title,
 				content: contentHtml,
 				...meta,
 			});
 		}
 
-		const layoutHtml = renderToString(layoutVNode);
+		const layoutHtml = renderToString(vnodeToRender);
 
 		// All CSS injected via unified path in page-writer
 		await writeHtmlPage(layoutHtml, outputFilePath, {

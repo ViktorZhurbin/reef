@@ -6,17 +6,17 @@
  * What it does:
  * - onBuild: Scans islands/ directory and compiles each component
  * - getImportMap: Returns CDN URLs for Preact runtime
- * - transform: Wraps <preact-*> tags in HTML with <castro-island>
  * - watchDirs: Tells dev server to rebuild when islands/ changes
+ *
+ * Islands are wrapped during JSX page rendering (page-jsx.js), not in transform hook.
  */
 
 import { ISLANDS_DIR, OUTPUT_DIR } from "../config.js";
 import { PreactConfig } from "./preact-config.js";
-import { processIslands } from "./processor.js";
-import { wrapWithIsland } from "./wrapper.js";
+import { islands } from "./registry.js";
 
 /**
- * @import { CastroPlugin, IslandsMap } from '../types.d.ts'
+ * @import { CastroPlugin } from '../types.d.ts'
  */
 
 /**
@@ -28,9 +28,6 @@ import { wrapWithIsland } from "./wrapper.js";
 export function preactIslands(options = {}) {
 	const { sourceDir = ISLANDS_DIR } = options;
 
-	/** @type {IslandsMap} */
-	let componentsMap = new Map();
-
 	return {
 		name: "islands-preact",
 
@@ -38,43 +35,19 @@ export function preactIslands(options = {}) {
 		watchDirs: [sourceDir],
 
 		/**
-		 * Build hook: discover, compile, and copy components
+		 * Build hook: discover, compile, and load islands into registry
 		 */
 		async onBuild({ outputDir = OUTPUT_DIR }) {
-			componentsMap = await processIslands({
-				sourceDir,
-				outputDir,
-			});
+			await islands.load({ sourceDir, outputDir });
 		},
 
 		/**
 		 * Return import map for Preact runtime
 		 */
 		getImportMap() {
-			if (componentsMap.size === 0) return null;
+			if (islands.getAll().size === 0) return null;
 
 			return PreactConfig.importMap;
-		},
-
-		/**
-		 * Transform HTML: wrap components in <castro-island> tags and render SSR
-		 *
-		 * Returns island CSS as Asset objects for unified injection.
-		 */
-		async transform({ content }) {
-			if (componentsMap.size === 0) {
-				return { html: content, assets: [] };
-			}
-
-			const { html, cssFiles } = await wrapWithIsland(content, componentsMap);
-
-			// Convert CSS paths to Asset objects (plugin owns asset format)
-			const assets = cssFiles.map((href) => ({
-				tag: "link",
-				attrs: { rel: "stylesheet", href },
-			}));
-
-			return { html, assets };
 		},
 	};
 }
