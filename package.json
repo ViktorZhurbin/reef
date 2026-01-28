@@ -1,12 +1,13 @@
 {
-	"name": "reef-monorepo",
+	"name": "castro-monorepo",
 	"version": "1.0.0",
 	"private": true,
 	"scripts": {
 		"dev": "pnpm --filter website dev",
 		"build": "pnpm --filter website build",
 		"format": "biome format --write",
-		"loc": "pnpx cloc packages/reef/src/"
+		"type-check": "pnpm --filter @vktrz/castro type-check",
+		"loc": "pnpx cloc castro/src/"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.3.11"

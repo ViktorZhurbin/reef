@@ -1,0 +1,53 @@
+.preact-counter {
+	padding: 20px;
+	border: 2px solid #333;
+	border-radius: 8px;
+	max-width: 300px;
+	background-color: #f9f9f9;
+	color: #1a1a1a;
+}
+
+.preact-counter h3 {
+	margin-top: 0;
+	color: #8b0000;
+}
+
+.preact-counter p {
+	font-size: 24px;
+	margin: 10px 0;
+	font-weight: 600;
+	color: #333;
+}
+
+.preact-counter .buttons {
+	display: flex;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.preact-counter button {
+	padding: 10px 16px;
+	border-radius: 4px;
+	border: none;
+	background-color: #c41e3a;
+	color: #fff;
+	cursor: pointer;
+	font-weight: 500;
+	transition: all 0.2s;
+}
+
+.preact-counter button:hover {
+	background-color: #8b0000;
+	transform: translateY(-1px);
+}
+
+.preact-counter button:last-child {
+	border: 2px solid #333;
+	background-color: transparent;
+	color: #333;
+}
+
+.preact-counter button:last-child:hover {
+	background-color: #333;
+	color: #fff;
+}

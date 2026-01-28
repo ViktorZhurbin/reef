@@ -1,0 +1,35 @@
+/* Footer */
+footer {
+	background: var(--red-dark);
+	color: var(--cream);
+	padding: 3rem 2rem;
+	text-align: center;
+}
+
+.footer-slogan {
+	font-family: "Bebas Neue", sans-serif;
+	font-size: 2rem;
+	margin-bottom: 1rem;
+	color: var(--gold);
+	letter-spacing: 0.05em;
+}
+
+.footer-links {
+	display: flex;
+	gap: 2rem;
+	justify-content: center;
+	flex-wrap: wrap;
+	margin-top: 2rem;
+}
+
+.footer-links a {
+	color: var(--cream);
+	text-decoration: none;
+	opacity: 0.8;
+	transition: opacity 0.3s;
+}
+
+.footer-links a:hover {
+	opacity: 1;
+	text-decoration: underline;
+}

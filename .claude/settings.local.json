@@ -7,6 +7,7 @@
 			"Bash(git add:*)",
 			"Bash(pnpm:*)",
 			"Bash(cat:*)",
+			"Bash(sed:*)",
 			"Bash(lsof:*)",
 			"Bash(xargs kill -9)",
 			"Bash(grep:*)",
@@ -16,7 +17,7 @@
 			"Bash(ls:*)",
 			"Bash(find:*)",
 			"Bash(wc:*)",
-			"WebSearch"
+			"WebFetch(domain:*)"
 		]
 	}
 }

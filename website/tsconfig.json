@@ -1,0 +1,43 @@
+{
+	"compilerOptions": {
+		// Language and environment
+		"target": "ES2022",
+		"lib": ["ES2022", "DOM", "DOM.Iterable"],
+		"jsx": "react-jsx",
+		"jsxImportSource": "preact",
+		"types": ["@vktrz/castro"],
+
+		// Module resolution
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"resolveJsonModule": true,
+		"allowImportingTsExtensions": true,
+
+		// Emit
+		"noEmit": true,
+		"isolatedModules": true,
+
+		// Type checking
+		"strict": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedIndexedAccess": true,
+
+		// Interop
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"forceConsistentCasingInFileNames": true,
+		"skipLibCheck": true,
+
+		// Path mappings (optional, for convenience)
+		"baseUrl": ".",
+		"paths": {
+			"@components/*": ["components/*"],
+			"@islands/*": ["islands/*"],
+			"@layouts/*": ["layouts/*"]
+		}
+	},
+	"include": ["components/**/*", "islands/**/*", "layouts/**/*", "pages/**/*"],
+	"exclude": ["node_modules", "dist"]
+}

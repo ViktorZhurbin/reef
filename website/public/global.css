@@ -1,0 +1,22 @@
+:root {
+	--red-primary: #c41e3a;
+	--red-dark: #8b0000;
+	--red-bright: #e63946;
+	--cream: #f5e6d3;
+	--gold: #d4af37;
+	--black: #1a1a1a;
+	--gray: #333;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	font-family: "PT Sans", -apple-system, sans-serif;
+	background: var(--cream);
+	color: var(--black);
+	overflow-x: hidden;
+}

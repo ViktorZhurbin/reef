@@ -1,0 +1,147 @@
+/* 404 Not Found Hero */
+.not-found-hero {
+	position: relative;
+	min-height: 100vh;
+	background: linear-gradient(135deg, var(--black) 0%, var(--red-dark) 100%);
+	color: var(--cream);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+}
+
+/* Glitchy rays background */
+.not-found-hero::before {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 200%;
+	height: 200%;
+	background:
+		linear-gradient(
+			45deg,
+			transparent 48%,
+			rgba(255, 255, 255, 0.02) 48%,
+			rgba(255, 255, 255, 0.02) 52%,
+			transparent 52%
+		),
+		linear-gradient(
+			-45deg,
+			transparent 48%,
+			rgba(255, 255, 255, 0.02) 48%,
+			rgba(255, 255, 255, 0.02) 52%,
+			transparent 52%
+		);
+	background-size: 100px 100px;
+	transform: translate(-50%, -50%) rotate(0deg);
+	opacity: 0;
+	animation: fadeInRays 1.5s ease-out 0.3s forwards;
+}
+
+@keyframes fadeInRays {
+	to {
+		opacity: 0.5;
+	}
+}
+
+.not-found-content {
+	position: relative;
+	z-index: 2;
+	max-width: 800px;
+	padding: 2rem;
+	text-align: center;
+}
+
+/* Redacted star emblem */
+.star-emblem.redacted {
+	width: 80px;
+	height: 80px;
+	margin: 0 auto 2rem;
+	opacity: 0;
+	transform: scale(0) rotate(-180deg);
+	animation: starEnter 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s forwards;
+	filter: grayscale(100%);
+}
+
+@keyframes starEnter {
+	to {
+		opacity: 0.3;
+		transform: scale(1) rotate(0deg);
+	}
+}
+
+.star-emblem.redacted svg {
+	width: 100%;
+	height: 100%;
+	fill: var(--gray);
+	filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+}
+
+.not-found-hero h1 {
+	font-family: "Bebas Neue", sans-serif;
+	font-size: clamp(2rem, 6vw, 4rem);
+	line-height: 1.1;
+	letter-spacing: 0.02em;
+	margin-bottom: 1.5rem;
+	text-transform: uppercase;
+	opacity: 0;
+	transform: translateY(30px);
+	animation: slideUp 0.8s ease-out 0.7s forwards;
+}
+
+@keyframes slideUp {
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.not-found-hero h1 .error-code {
+	color: var(--red-primary);
+	display: block;
+	font-size: 1.5em;
+	text-shadow:
+		2px 2px 0 var(--black),
+		4px 4px 0 rgba(0, 0, 0, 0.3);
+	margin-bottom: 0.2em;
+}
+
+.not-found-hero .redacted-message {
+	font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+	font-weight: 700;
+	margin-bottom: 1rem;
+	opacity: 0;
+	transform: translateY(20px);
+	animation: slideUp 0.8s ease-out 0.9s forwards;
+	color: var(--cream);
+	line-height: 1.5;
+}
+
+.not-found-hero .subtitle {
+	font-size: clamp(1rem, 2vw, 1.2rem);
+	margin-bottom: 3rem;
+	transform: translateY(20px);
+	animation: slideUp 0.8s ease-out 1.1s forwards;
+	font-style: italic;
+	color: var(--cream);
+	opacity: 0.7;
+}
+
+.not-found-hero .cta-buttons {
+	display: flex;
+	gap: 1.5rem;
+	justify-content: center;
+	flex-wrap: wrap;
+	opacity: 0;
+	transform: translateY(20px);
+	animation: slideUp 0.8s ease-out 1.3s forwards;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+	.not-found-hero .cta-buttons {
+		flex-direction: column;
+		align-items: stretch;
+	}
+}

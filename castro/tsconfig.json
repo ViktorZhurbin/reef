@@ -1,0 +1,20 @@
+{
+	"compilerOptions": {
+		"lib": ["ESNext"],
+		"target": "ES2022",
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"strict": true,
+		"noEmit": true,
+		"skipLibCheck": true,
+		"allowJs": true,
+		"checkJs": true,
+		"resolveJsonModule": true,
+		"esModuleInterop": true,
+		"declaration": false,
+		"declarationMap": false,
+		"sourceMap": false
+	},
+	"include": ["src/**/*"],
+	"exclude": ["node_modules"]
+}
