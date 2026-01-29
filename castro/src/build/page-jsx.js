@@ -18,15 +18,10 @@
  */
 
 import { dirname } from "node:path";
-import { renderToString } from "preact-render-to-string";
-import { islands } from "../islands/registry.js";
-import { wrapIslandsInJSX } from "../islands/wrapper-jsx.js";
-import { layouts } from "../layouts/registry.js";
-import { resolveLayout } from "../layouts/resolver.js";
 import { messages } from "../messages.js";
 import { compileJSX } from "./compile-jsx.js";
 import { buildPageShell } from "./page-shell.js";
-import { writeHtmlPage } from "./page-writer.js";
+import { renderPageVNode } from "./render-page-vnode.js";
 import { writeCSSFiles } from "./write-css.js";
 
 /** @import { Asset } from "../types.d.ts" */
@@ -40,12 +35,6 @@ import { writeCSSFiles } from "./write-css.js";
 export async function buildJSXPage(sourceFileName, options = {}) {
 	await buildPageShell(sourceFileName, /\.[jt]sx$/, options, async (ctx) => {
 		const { sourceFilePath, outputFilePath } = ctx;
-
-		// Clear page state at the start of each build to prevent CSS leakage
-		// from previous pages (especially important if previous build failed)
-		islands.clearPageState();
-
-		const allLayouts = layouts.getAll();
 
 		// Compile and import the JSX page (also extracts CSS)
 		const { module: pageModule, cssFiles } = await compileJSX(sourceFilePath);
@@ -61,55 +50,16 @@ export async function buildJSXPage(sourceFileName, options = {}) {
 		// Extract metadata (includes layout preference)
 		const meta = pageModule.meta || {};
 
-		/** @type { Asset[] } */
-		let layoutCssAssets = [];
-
 		const contentVNode = pageModule.default();
 
-		// Wrap islands in JSX
-		const islandVNode = wrapIslandsInJSX(contentVNode);
-
-		let vnodeToRender;
-
-		// Support layout: false or layout: "none" for pages that render full HTML themselves.
-		// Useful for special pages like RSS feeds, sitemaps, or custom layouts.
-		if (meta.layout === false || meta.layout === "none") {
-			vnodeToRender = islandVNode;
-		} else {
-			const layoutName = await resolveLayout(sourceFilePath, meta);
-
-			const layoutFn = allLayouts.get(layoutName);
-
-			if (!layoutFn) {
-				throw new Error(messages.errors.layoutNotFound(layoutName));
-			}
-
-			// Get CSS assets for this layout
-			layoutCssAssets = layouts.getCssAssets(layoutName);
-
-			const title = meta.title || sourceFileName.replace(/\.[jt]sx$/, "");
-			const contentHtml = renderToString(islandVNode);
-
-			vnodeToRender = layoutFn({
-				title,
-				content: contentHtml,
-				...meta,
-			});
-		}
-
-		const layoutHtml = renderToString(vnodeToRender);
-
-		const { cssPaths } = islands.getPageAssets();
-
-		// Add island CSS to page assets
-		const islandCssAssets = cssPaths.filter(Boolean).map((href) => ({
-			tag: "link",
-			attrs: { rel: "stylesheet", href },
-		}));
-
-		// All CSS injected via unified path in page-writer
-		await writeHtmlPage(layoutHtml, outputFilePath, {
-			pageCssAssets: [...layoutCssAssets, ...pageCssAssets, ...islandCssAssets],
+		// Use shared rendering pipeline
+		await renderPageVNode({
+			contentVNode,
+			sourceFilePath,
+			outputFilePath,
+			sourceFileName,
+			meta,
+			pageCssAssets,
 		});
 	});
 }

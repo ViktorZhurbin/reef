@@ -1,13 +1,14 @@
 /**
  * Markdown Page Builder
  *
- * Builds a single markdown file to HTML.
+ * Builds a single markdown file to HTML using the unified JSX pipeline.
  *
  * Process:
  * 1. Parse frontmatter (YAML between --- delimiters) for metadata
  * 2. Convert markdown body to HTML using marked
- * 3. Resolve which layout to use (from frontmatter or directory config)
- * 4. Wrap HTML in layout component
+ * 3. Wrap HTML in a VNode (for consistent pipeline with JSX pages)
+ * 4. Pass through island wrapping (enables layouts to use islands)
+ * 5. Resolve layout and render
  *
  * Example markdown file:
  *   ---
@@ -21,12 +22,9 @@
 import { readFile } from "node:fs/promises";
 import matter from "gray-matter";
 import { marked } from "marked";
-import { renderToString } from "preact-render-to-string";
-import { layouts } from "../layouts/registry.js";
-import { resolveLayout } from "../layouts/resolver.js";
-import { messages } from "../messages.js";
+import { h } from "preact";
 import { buildPageShell } from "./page-shell.js";
-import { writeHtmlPage } from "./page-writer.js";
+import { renderPageVNode } from "./render-page-vnode.js";
 
 /**
  * Build a single markdown file to HTML
@@ -38,32 +36,26 @@ export async function buildMarkdownPage(sourceFileName, options = {}) {
 	await buildPageShell(sourceFileName, ".md", options, async (ctx) => {
 		const { sourceFilePath, outputFilePath } = ctx;
 
-		const allLayouts = layouts.getAll();
-
 		// Read and parse markdown with frontmatter
 		const sourceFileContent = await readFile(sourceFilePath, "utf-8");
 		const { data: meta, content: markdown } = matter(sourceFileContent);
 
-		// Resolve which layout to use
-		const layoutName = await resolveLayout(sourceFilePath, meta);
-
-		const layoutFn = allLayouts.get(layoutName);
-
-		if (!layoutFn) {
-			throw new Error(messages.errors.layoutNotFound(layoutName));
-		}
-
-		const title = meta.title || sourceFileName.replace(".md", "");
+		// Convert markdown to HTML
 		const contentHtml = await marked(markdown);
 
-		const layoutVNode = layoutFn({
-			title,
-			content: contentHtml,
-			...meta,
+		// Create a VNode wrapper for the markdown content
+		// This enables the unified JSX pipeline (island wrapping, etc.)
+		const contentVNode = h("div", {
+			dangerouslySetInnerHTML: { __html: contentHtml },
 		});
 
-		const layoutHtml = renderToString(layoutVNode);
-
-		await writeHtmlPage(layoutHtml, outputFilePath);
+		// Use shared rendering pipeline
+		await renderPageVNode({
+			contentVNode,
+			sourceFilePath,
+			outputFilePath,
+			sourceFileName,
+			meta,
+		});
 	});
 }
