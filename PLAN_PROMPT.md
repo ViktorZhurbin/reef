@@ -5,7 +5,7 @@ You are creating an executable implementation plan for an AI model that cannot a
 Project: Castro - Educational SSG with island architecture
 Tech: Node.js, esbuild, JSX/TSX, Preact, extensive JSDoc comments
 
-Output a plan with these sections:
+Below is an example plan. Output a plan with these sections:
 
 ---
 
@@ -37,6 +37,7 @@ Castro-specific constraints:
 - Include .js extensions on all imports (Node ESM)
 - Do NOT change exported function signatures, unless explicitly instructed
 - Do NOT add npm dependencies, unless explicitly instructed
+- Do NOT deviate from the plan. If something doesn't work - stop and report back.
 
 ---
 
@@ -108,4 +109,4 @@ Behavior: [Exactly what should happen]
 
 ---
 
-Now create a plan for the provided task description, and write it at the project root in a Markdown file.
+Now create a plan for the task description provided below:
