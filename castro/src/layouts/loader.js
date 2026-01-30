@@ -53,7 +53,7 @@ export async function loadLayouts() {
 		throw err;
 	}
 
-	// Clean temp dir to ensure fresh compilation.
+	// Clean cache dir to ensure fresh compilation.
 	// In dev mode, stale cached layouts can cause issues when files change.
 	const tempDirPath = resolveTempDir(LAYOUTS_DIR);
 	rmSync(tempDirPath, { recursive: true, force: true });

@@ -5,7 +5,9 @@
  * This centralizes the "where things live" knowledge.
  */
 
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { access } from "node:fs/promises";
+import { join, parse, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { messages } from "./messages.js";
 
@@ -58,38 +60,33 @@ export async function loadConfig() {
 }
 
 // ============================================================================
-// Temp Directory Utilities
+// Persistent Cache Directory
 // ============================================================================
 
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
-import { join, parse, relative, resolve } from "node:path";
+/** Cache directory for compiled modules (persistent, not cleaned on exit) */
+const CACHE_ROOT = join(process.cwd(), "node_modules/.cache/castro");
 
-/** Temp directory for compiled modules */
-const TEMP_ROOT = join(process.cwd(), "node_modules/.castro-temp");
-
-/** Clean up temp directory */
+/**
+ * Clean up cache directory at startup
+ *
+ * Called once at the beginning of the process to ensure a fresh state.
+ * Files persist after the process exits for inspection and debugging.
+ */
 export function cleanupTempDir() {
 	try {
-		rmSync(TEMP_ROOT, { recursive: true, force: true });
+		rmSync(CACHE_ROOT, { recursive: true, force: true });
 	} catch {}
 }
 
-/** Register cleanup handlers for process exit */
-export function setupCleanupOnExit() {
-	process.on("exit", cleanupTempDir);
-	process.on("SIGINT", () => process.exit());
-	process.on("SIGTERM", () => process.exit());
-}
-
 /**
- * Ensures the directory exists and returns the path.
+ * Ensures the directory exists and returns the path
  * @param {string} subpath
  * @returns {string}
  */
 export function resolveTempDir(subpath) {
 	const resolvedSubpath = resolve(process.cwd(), subpath);
 	const relativeSubpath = relative(process.cwd(), resolvedSubpath);
-	const dirPath = join(TEMP_ROOT, relativeSubpath);
+	const dirPath = join(CACHE_ROOT, relativeSubpath);
 
 	mkdirSync(dirPath, { recursive: true });
 
@@ -97,10 +94,10 @@ export function resolveTempDir(subpath) {
 }
 
 /**
- * Generates the disk path for the temp file.
+ * Generates the cache file path for compiled code
  *
- * Mirrors the source file structure inside node_modules/.castro-temp/
- * For example: pages/blog/post.tsx → node_modules/.castro-temp/pages/blog/post.tsx.js
+ * Mirrors the source file structure inside node_modules/.cache/castro/
+ * For example: pages/blog/post.tsx → node_modules/.cache/castro/pages/blog/post.tsx.js
  *
  * @param {string} sourcePath
  * @param {string} [subpath] - Optional subdirectory (e.g., "ssr" for SSR builds)
@@ -115,7 +112,7 @@ export function createTempPath(sourcePath, subpath = "") {
 }
 
 /**
- * Write content to temp file and return importable URL
+ * Write content to cache file and return importable URL
  * @param {string} sourcePath
  * @param {string} content
  * @param {string} [subpath]
@@ -124,7 +121,12 @@ export function createTempPath(sourcePath, subpath = "") {
 function writeTempFile(sourcePath, content, subpath = "") {
 	const fullPath = createTempPath(sourcePath, subpath);
 
-	writeFileSync(fullPath, content);
+	try {
+		writeFileSync(fullPath, content);
+	} catch (err) {
+		console.error(`Failed to write cache file: ${fullPath}`, err);
+		throw err;
+	}
 
 	// pathToFileURL is essential for Windows support in ESM imports
 	const pathUrl = pathToFileURL(fullPath).href;
@@ -134,16 +136,17 @@ function writeTempFile(sourcePath, content, subpath = "") {
 }
 
 /**
- * Write code to temp file and import it as a module
+ * Load code from cache file and import it as a module
  *
- * We can't directly import code from a string in ESM, so we:
- * 1. Write the compiled code to a temp file
- * 2. Generate a file:// URL with cache-busting timestamp
- * 3. Dynamic import() the file URL
+ * Writes compiled code to a cache file in node_modules/.cache/castro
+ * and imports it as an ES module. This approach allows proper module
+ * resolution for packages like preact, which is essential since all code
+ * must share the same instance.
  *
- * @param {string} sourcePath
+ * @param {string} sourcePath - Original source path
  * @param {string} content - Compiled JavaScript code
- * @param {string} [subpath]
+ * @param {string} [subpath] - Optional subdirectory
+ * @returns {Promise<any>} The imported module
  */
 export async function getModule(sourcePath, content, subpath) {
 	const fileUrl = writeTempFile(sourcePath, content, subpath);

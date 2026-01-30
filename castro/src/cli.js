@@ -11,11 +11,10 @@
  */
 
 import { rm } from "node:fs/promises";
-import { cleanupTempDir, OUTPUT_DIR, setupCleanupOnExit } from "./config.js";
+import { cleanupTempDir, OUTPUT_DIR } from "./config.js";
 import { messages } from "./messages.js";
 
-// Set up cleanup handlers
-setupCleanupOnExit();
+// Clean up old build artifacts at startup
 cleanupTempDir();
 
 // Parse command
