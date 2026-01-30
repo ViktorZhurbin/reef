@@ -1,35 +1,5 @@
 # Roadmap
 
-## Configuration
-
-### Make paths configurable via reef.config.js
-
-- `contentDir`, `pagesDir`, `layoutsDir`, `outputDir`, etc.
-- Currently hardcoded in constants/dir.js
-
-## Opportunities
-
-### Schema validation for meta
-
-meta export in `.tsx` files is untyped. Adding a simple schema validator would prevent "The manifesto is corrupted" errors when a user forgets a title.
-
-
-## Hashing
-
-Implement the Manifest pattern.
-
-- Configure esbuild to output hashed files (entryNames: `'[dir]/[name]-[hash]'`).
-- Have esbuild generate a `metafile.json`.
-- Update your `registry.js` to look up the final filename from that manifest before injecting script tags.
-
-## Replace 'read from file' "hack"
-
-Risk: Writing to `node_modules/.castro-temp` to load modules is fragile. It works, but it causes I/O overhead and can get messy with file permissions or parallel builds.
-
-Consider libraries like `jiti` (used by Nuxt) or `tsx` which allow importing TypeScript/ESM directly into Node without writing physical temp files.
-
-Investigate replacing `config.js`'s file writing with a memory-based loader or `jiti` to make the tool feel snappier and less "disk-heavy."
-
 ## 👨‍💻 Developer Experience
 
 ### CLI
@@ -40,6 +10,10 @@ Investigate replacing `config.js`'s file writing with a memory-based loader or `
 
 
 ## Consider
+
+### Schema validation for meta
+
+meta export in `.tsx` files is untyped. Adding a simple schema validator would prevent "The manifesto is corrupted" errors when a user forgets a title.
 
 ### Implement "getStaticPaths" (High Value):
 

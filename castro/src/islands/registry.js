@@ -8,7 +8,7 @@
  */
 
 import { access, glob, mkdir } from "node:fs/promises";
-import { join, relative } from "node:path";
+import { dirname, join, relative } from "node:path";
 import { styleText } from "node:util";
 import { messages } from "../messages.js";
 import { compileIsland } from "./compiler.js";
@@ -59,22 +59,27 @@ class IslandsRegistry {
 		await Array.fromAsync(
 			glob(join(islandsDir, "**/*.{jsx,tsx}")),
 			async (sourcePath) => {
-				// Preserve directory structure in output
-				// e.g., islands/ui/Button.tsx → ui/Button.tsx → ui/Button.js
-				const outputFilePath = relative(
-					islandsDir,
-					sourcePath.replace(/\.[jt]sx?$/, ".js"),
+				// Calculate output directory structure preserving nesting
+				// path.join automatically normalizes "." segments, so we don't need
+				// explicit checks for top-level files (e.g., join('islands', '.') → 'islands')
+				const relativeDir = dirname(relative(islandsDir, sourcePath));
+
+				// Output directory: dist/islands/ui (automatically handles dot segments)
+				const outputDir = join(outputIslandsDir, relativeDir);
+
+				// Public URL base: /islands/ui
+				// We join with path.join for robust handling, then normalize to forward slashes
+				const publicDir = `/${join(islandsDir, relativeDir)}`.replaceAll(
+					"\\",
+					"/",
 				);
 
-				const outputPath = join(outputIslandsDir, outputFilePath);
-				const publicPath = `/${islandsDir}/${outputFilePath}`;
-
 				try {
-					// Compiler handles all path logic and returns public HTTP paths
+					// Compiler handles hashing and returns specific hashed filenames
 					const component = await compileIsland({
 						sourcePath,
-						outputPath,
-						publicPath,
+						outputDir,
+						publicDir,
 					});
 
 					const existingIsland = this.#islands.get(component.name);

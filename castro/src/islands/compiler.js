@@ -24,12 +24,13 @@ import { PreactConfig } from "./preact-config.js";
 /**
  * Compile an island component for both client and SSR
  *
- * Centralizes all path logic - takes filesystem paths, returns public HTTP paths.
+ * Handles hashing and file writing. The compiler generates hashed filenames
+ * for cache busting and returns the actual public paths to use in HTML.
  *
- * @param {{ sourcePath: string, outputPath: string, publicPath: string }} params
+ * @param {{ sourcePath: string, outputDir: string, publicDir: string }} params
  * @returns {Promise<IslandComponent>}
  */
-export async function compileIsland({ sourcePath, outputPath, publicPath }) {
+export async function compileIsland({ sourcePath, outputDir, publicDir }) {
 	try {
 		// Compile SSR version first (runs at build time in Node.js)
 		const ssrCode = await compileIslandSSR({ sourcePath });
@@ -59,34 +60,49 @@ export async function compileIsland({ sourcePath, outputPath, publicPath }) {
 		// Compile client version (runs in browser)
 		const clientBuildResult = await compileIslandClient({
 			sourcePath,
-			outputPath,
+			outputDir,
 		});
 
-		// Write files and construct public paths
-		let publicCssPath;
+		// Find the actual generated files (with hashes)
+		const jsFile = clientBuildResult.outputFiles?.find((f) =>
+			f.path.endsWith(".js"),
+		);
+		const cssFile = clientBuildResult.outputFiles?.find((f) =>
+			f.path.endsWith(".css"),
+		);
 
+		if (!jsFile) {
+			throw new Error(`No JS output found for ${sourcePath}`);
+		}
+
+		// Construct public paths using the generated filenames
+		// Normalize to forward slashes for cross-platform URL compatibility
+		const publicJsPath = `${publicDir}/${basename(jsFile.path)}`.replaceAll(
+			"\\",
+			"/",
+		);
+
+		let publicCssPath;
+		if (cssFile) {
+			publicCssPath = `${publicDir}/${basename(cssFile.path)}`.replaceAll(
+				"\\",
+				"/",
+			);
+		}
+
+		// Write files to disk
 		if (clientBuildResult.outputFiles) {
-			await mkdir(dirname(outputPath), { recursive: true });
+			await mkdir(outputDir, { recursive: true });
 
 			for (const file of clientBuildResult.outputFiles) {
-				// Write to disk
 				await writeFile(file.path, file.text);
-
-				// Track CSS file for public path
-				if (file.path.endsWith(".css")) {
-					const cssFileName = basename(file.path);
-					publicCssPath = `/${dirname(publicPath)}/${cssFileName}`.replace(
-						/\/+/g,
-						"/",
-					);
-				}
 			}
 		}
 
 		return {
 			ssrCode,
 			sourcePath,
-			publicJsPath: publicPath,
+			publicJsPath,
 			publicCssPath,
 			name: componentName,
 		};
@@ -101,11 +117,12 @@ export async function compileIsland({ sourcePath, outputPath, publicPath }) {
  *
  * Creates a module that exports a mounting function.
  * The mounting function handles hydration when called.
+ * Outputs files with content hashes for cache busting.
  *
- * @param {{ sourcePath: string, outputPath: string }} params
+ * @param {{ sourcePath: string, outputDir: string }} params
  * @returns {Promise<esbuild.BuildResult>}
  */
-async function compileIslandClient({ sourcePath, outputPath }) {
+async function compileIslandClient({ sourcePath, outputDir }) {
 	const config = PreactConfig;
 
 	// Create entry point that imports component and exports mounting function
@@ -125,12 +142,15 @@ async function compileIslandClient({ sourcePath, outputPath }) {
 			contents: virtualEntry, // Use generated mounting code as entry (not a file)
 			resolveDir: dirname(sourcePath),
 			loader: "js",
+			sourcefile: basename(sourcePath), // Used for [name] in entryNames
 		},
-		outfile: outputPath,
+		outdir: outputDir, // Output directory instead of single file
+		entryNames: "[name]-[hash]", // Hash-based filenames for cache busting
 		bundle: true, // Bundle all dependencies into single browser-ready file
 		format: "esm", // Output ES modules (modern browsers support)
 		target: "es2020", // Browser target (supports modern JS features)
 		write: false, // Keep output in memory for processing
+		metafile: true, // Enable metafile for build analysis (required with hashing)
 		loader: {
 			".css": "css", // Extract CSS into separate files for <link> injection
 		},
