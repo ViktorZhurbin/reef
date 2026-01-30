@@ -6,7 +6,6 @@
  */
 
 import { renderToString } from "preact-render-to-string";
-import { islands } from "../islands/registry.js";
 import { islandWrapper } from "../islands/wrapper-jsx.js";
 import { layouts } from "../layouts/registry.js";
 import { resolveLayout } from "../layouts/resolver.js";
@@ -21,14 +20,13 @@ import { writeHtmlPage } from "./page-writer.js";
 /**
  * Render a page VNode through the complete pipeline
  *
- * @param {{
- *   createContentVNode: () => VNode,
- *   sourceFilePath: string,
- *   outputFilePath: string,
- *   sourceFileName: string,
- *   meta: Record<string, any>,
- *   pageCssAssets?: Asset[]
- * }} params
+ * @param {Object} params
+ * @param {() => VNode} params.createContentVNode - Passing the factory function ensures the hook is active exactly when the VNodes are created
+ * @param {string} params.sourceFilePath
+ * @param {string} params.outputFilePath
+ * @param {string} params.sourceFileName
+ * @param {Record<string, any>} params.meta
+ * @param {Asset[]} [params.pageCssAssets]
  */
 export async function renderPageVNode({
 	createContentVNode,
@@ -38,12 +36,12 @@ export async function renderPageVNode({
 	meta,
 	pageCssAssets = [],
 }) {
-	// Clear page state for island CSS tracking
-	islands.clearPageState();
+	// Track island CSS used during this specific render
+	const usedIslandCss = new Set();
 
 	// Install hook to intercept islands during VNode creation
 	// Hook remains active for both page content and layout rendering
-	islandWrapper.install();
+	islandWrapper.install(usedIslandCss);
 
 	try {
 		// Create content VNode with hook active (wraps any islands in content)
@@ -84,9 +82,8 @@ export async function renderPageVNode({
 		// Render final page
 		const html = renderToString(vnodeToRender);
 
-		// Collect island CSS
-		const { cssPaths } = islands.getPageAssets();
-		const islandCssAssets = cssPaths.filter(Boolean).map((href) => ({
+		// Collect island CSS from tracking set
+		const islandCssAssets = Array.from(usedIslandCss).map((href) => ({
 			tag: "link",
 			attrs: { rel: "stylesheet", href },
 		}));

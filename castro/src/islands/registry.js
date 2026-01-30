@@ -24,45 +24,6 @@ class IslandsRegistry {
 	/** @type {IslandsMap} */
 	#islands = new Map();
 
-	#pageState = {
-		usedIslands: new Set(),
-		usedCss: new Set(),
-	};
-
-	/**
-	 * Collects assets for currently processed island
-	 *
-	 * @param {string} componentName
-	 */
-	trackIsland(componentName) {
-		const island = this.getIsland(componentName);
-
-		this.#pageState.usedIslands.add(componentName);
-
-		if (island?.publicCssPath) {
-			this.#pageState.usedCss.add(island.publicCssPath);
-		}
-	}
-
-	/**
-	 * Returns CSS paths for all islands detected on a page
-	 *
-	 * @returns {{ cssPaths: string[] }}
-	 */
-	getPageAssets() {
-		const cssPaths = Array.from(this.#pageState.usedCss);
-
-		return { cssPaths };
-	}
-
-	/**
-	 * Clears the page-specific state
-	 */
-	clearPageState() {
-		this.#pageState.usedIslands.clear();
-		this.#pageState.usedCss.clear();
-	}
-
 	/**
 	 * Load (or reload) all islands from disk
 	 * @param {{ islandsDir: string, outputDir: string }} options

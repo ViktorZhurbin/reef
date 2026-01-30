@@ -34,18 +34,19 @@ class IslandWrapper {
 	#hookInstalled = false;
 	/** Track whether we're rendering static HTML (prevents infinite recursion) */
 	#renderingStatic = false;
+	/** @type {Set<string> | null} Set to collect used island CSS paths during render */
+	#trackedCss = null;
 
 	/**
 	 * Install the island detection hook
 	 *
-	 * This hook intercepts every VNode as it's created during rendering.
-	 * When it finds an island component, it replaces the component with
-	 * a wrapper that renders static HTML + hydration metadata.
+	 * @param {Set<string>} [trackedCss] - Set to collect used island CSS paths
 	 */
-	install() {
+	install(trackedCss) {
 		// Prevent double-installation
 		if (this.#hookInstalled) return;
 		this.#hookInstalled = true;
+		this.#trackedCss = trackedCss || null;
 
 		// Install our island detection hook
 		options.vnode = (vnode) => {
@@ -77,7 +78,10 @@ class IslandWrapper {
 						throw new Error(`Island "${componentName}" not found in registry`);
 					}
 
-					islands.trackIsland(componentName);
+					// Track CSS for this island into the provided context
+					if (this.#trackedCss && island.publicCssPath) {
+						this.#trackedCss.add(island.publicCssPath);
+					}
 
 					// Extract directives and clean props
 					const directive = this.#extractDirective(props);
@@ -134,6 +138,7 @@ class IslandWrapper {
 	uninstall() {
 		if (!this.#hookInstalled) return;
 		this.#hookInstalled = false;
+		this.#trackedCss = null;
 		options.vnode = this.#originalHook;
 	}
 

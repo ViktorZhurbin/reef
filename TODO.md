@@ -1,15 +1,5 @@
 # Roadmap
 
-## Islands Singleton State (registry.js) [Warning]
-
-`IslandsRegistry` uses private fields (`#pageState`) to track used CSS during a render.
-
-Risk: This effectively makes your renderer single-threaded. You cannot render two pages in parallel because they share the global islands instance. If Page A and Page B build at the same time, Page A might get Page B's CSS.
-
-Fix: Pass a "Build Context" object through the render pipeline (`renderPageVNode`) rather than storing state in the singleton. The Registry should store what exists, not what is currently being used.
-
-Move the "CSS collection" logic out of `islands/registry.js` and into a context object passed down through `renderPageVNode`. This fixes the architectural "singleton risk."
-
 ## Configuration
 
 ### Make paths configurable via reef.config.js
@@ -32,7 +22,7 @@ Implement the Manifest pattern.
 - Have esbuild generate a `metafile.json`.
 - Update your `registry.js` to look up the final filename from that manifest before injecting script tags.
 
-## Read from file "hack"
+## Replace 'read from file' "hack"
 
 Risk: Writing to `node_modules/.castro-temp` to load modules is fragile. It works, but it causes I/O overhead and can get messy with file permissions or parallel builds.
 
