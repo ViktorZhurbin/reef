@@ -10,8 +10,10 @@
  * 4. The wrapper renders static HTML and wraps it in <castro-island> for hydration
  */
 
+import { join } from "node:path";
 import { h, options } from "preact";
 import { renderToString } from "preact-render-to-string";
+import { compileJSX } from "../build/compile-jsx.js";
 import { islands } from "./registry.js";
 
 /**
@@ -36,17 +38,26 @@ class IslandWrapper {
 	#renderingStatic = false;
 	/** @type {Set<string> | null} Set to collect used island CSS paths during render */
 	#trackedCss = null;
+	/** @type {any} Cached compiled error fallback component */
+	#ErrorComponent = null;
 
 	/**
 	 * Install the island detection hook
 	 *
 	 * @param {Set<string>} [trackedCss] - Set to collect used island CSS paths
 	 */
-	install(trackedCss) {
+	async install(trackedCss) {
 		// Prevent double-installation
 		if (this.#hookInstalled) return;
 		this.#hookInstalled = true;
 		this.#trackedCss = trackedCss || null;
+
+		// Compile the error fallback component on first use
+		if (!this.#ErrorComponent) {
+			const fallbackPath = join(import.meta.dirname, "error-fallback.tsx");
+			const { module } = await compileJSX(fallbackPath);
+			this.#ErrorComponent = module.default;
+		}
 
 		// Install our island detection hook
 		options.vnode = (vnode) => {
@@ -97,12 +108,18 @@ class IslandWrapper {
 					try {
 						staticHtml = renderToString(h(OriginalComponent, cleanProps));
 					} catch (e) {
-						const err = /** @type {NodeJS.ErrnoException} */ (e);
+						const err = /** @type {Error} */ (e);
 
-						throw new Error(
-							`Failed to render island "${componentName}": ${err.message}`,
-							{ cause: e },
+						// Log the error for developer visibility, but don't crash the build
+						console.error(
+							`\n❌ Failed to render island "${componentName}": ${err.message}`,
 						);
+
+						// Render the compiled error fallback component
+						return h(this.#ErrorComponent, {
+							componentName,
+							error: err,
+						});
 					} finally {
 						this.#renderingStatic = false;
 					}

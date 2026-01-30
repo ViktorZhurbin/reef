@@ -43,7 +43,7 @@ export async function renderPageVNode({
 
 	// Install hook to intercept islands during VNode creation
 	// Hook remains active for both page content and layout rendering
-	islandWrapper.install(usedIslandCss);
+	await islandWrapper.install(usedIslandCss);
 
 	try {
 		// Create content VNode with hook active (wraps any islands in content)

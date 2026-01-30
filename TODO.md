@@ -8,11 +8,6 @@ Steal the `getStaticPaths` concept from Next.js/Astro. Allow a single `.tsx` fil
 
 May involve some routing changes.
 
-### Improve Error Boundaries:
-
-Fresh has a very nice "Error Overlay" in development. If an island crashes, the whole page doesn't die. You could implement an `ErrorBoundary` in your `wrapper-jsx.js` to catch render failures and show a "Redacted" box instead of crashing the build.
-
-In `wrapper-jsx.js`, wrap the island rendering in a `try/catch`. If it fails, render a fallback UI (e.g., "⚠️ Counter-revolutionary logic detected") rather than crashing the build process.
 
 ### Support CSS modules
 
