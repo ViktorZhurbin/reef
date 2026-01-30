@@ -11,7 +11,7 @@
  */
 
 import { mkdir, writeFile } from "node:fs/promises";
-import { basename, dirname } from "node:path";
+import { basename, dirname, extname } from "node:path";
 import { styleText } from "node:util";
 import * as esbuild from "esbuild";
 import { getModule } from "../utils/cache.js";
@@ -124,6 +124,8 @@ export async function compileIsland({ sourcePath, outputDir, publicDir }) {
  */
 async function compileIslandClient({ sourcePath, outputDir }) {
 	const config = PreactConfig;
+	// Get clean name (e.g. "counter" from "counter.tsx")
+	const componentName = basename(sourcePath, extname(sourcePath));
 
 	// Create entry point that imports component and exports mounting function
 	const virtualEntry = `
@@ -139,13 +141,17 @@ async function compileIslandClient({ sourcePath, outputDir }) {
 	// Build configuration for island client bundle (browser execution)
 	const result = await esbuild.build({
 		stdin: {
-			contents: virtualEntry, // Use generated mounting code as entry (not a file)
+			contents: virtualEntry,
 			resolveDir: dirname(sourcePath),
 			loader: "js",
-			sourcefile: basename(sourcePath), // Used for [name] in entryNames
+			// Give the virtual entry a distinct name to prevent collision
+			// with the imported source file (e.g. "counter.virtual.js" vs "counter.tsx")
+			sourcefile: `${componentName}.virtual.js`,
 		},
-		outdir: outputDir, // Output directory instead of single file
-		entryNames: "[name]-[hash]", // Hash-based filenames for cache busting
+		outdir: outputDir,
+		// Explicitly set the output filename pattern to match the component name
+		// This bypasses the [name] placeholder which would use "counter.virtual"
+		entryNames: `${componentName}-[hash]`,
 		bundle: true, // Bundle all dependencies into single browser-ready file
 		format: "esm", // Output ES modules (modern browsers support)
 		target: "es2020", // Browser target (supports modern JS features)
