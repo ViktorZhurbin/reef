@@ -51,8 +51,8 @@ my-site/
 ```
 
 **Component types:**
-- **`components/`** - Static UI components, server-side only, no JS shipped to client
-- **`islands/`** - Interactive components that ship JavaScript to the browser
+- `components/` - Static UI components, server-side only, no JS shipped to client
+- `islands/` - Interactive components that ship JavaScript to the browser
 - Use `components/` for headers, footers, buttons, cards, etc.
 - Use `islands/` only when you need client-side interactivity
 
@@ -83,6 +83,7 @@ export default ({ title, content }) => (
 ---
 title: My Site
 ---
+
 # Hello World
 
 This is static HTML. Fast to load, no JavaScript needed.
@@ -118,9 +119,9 @@ export default function Counter({ initialCount = 0 }) {
 }
 ```
 
-**Use the island** in any page:
+**Use the island** in any `.jsx`/`.tsx` file:
 ```jsx
-<preact-counter data-initial-count="5" />
+<Counter initialCount={5} />
 ```
 
 Run `npm run dev` and visit `http://localhost:3000`.
@@ -142,26 +143,22 @@ These map to standard island patterns. The names just make them more memorable w
 
 Example usage:
 ```jsx
-<castro-island lenin:awake import="/components/counter.js">
-  <preact-counter data-count="0" />
-</castro-island>
+<Counter lenin:awake initialCount={6} />
 ```
-
-(Note: Castro wraps islands automatically, you just write `<preact-counter>`)
 
 ## How It Works
 
 1. **Build time**: Castro compiles your pages and islands
-   - Markdown/JSX pages → HTML
-   - Island components → Separate JS bundles
-   - SSR renders islands to static HTML
+   - Pages → HTML
+   - Islands have separate JS bundles
+   - Islands are wrapped into an internal <castro-island> custom component which handles hydration (loads component's JS, makes it interactive) on the client
 
-2. **Browser receives**: Pure HTML with `<castro-island>` wrappers
+2. **Browser receives**: Pure HTML
    - Page loads instantly
    - No JavaScript executed yet
 
 3. **Hydration triggers**: Based on directive
-   - `comrade:visible`: When scrolled into viewport
+   - `comrade:visible`: (default) When scrolled into viewport
    - `lenin:awake`: Immediately
    - `no:pasaran`: Never (stays static)
 
@@ -173,18 +170,18 @@ Result: Fast initial page load, progressive enhancement, minimal JavaScript.
 
 Because learning complex architectural patterns should be memorable. The communist satire is a wrapper around serious educational code.
 
-The framework is real. The performance benefits are real. The puns just make it stick in your memory while you read the implementation.
+The framework is real. The performance benefits are real. The puns just make it stick while you read the implementation.
 
 ## Project Status
 
-Castro is an educational project. It's a real, working SSG that you can use, but the primary goal is teaching. Use it to:
+Castro is an educational project. It's a real, working framework that you can use, but the primary goal is teaching. Use it to:
 
 - Learn how island architecture works internally
 - Understand modern SSG compilation pipelines
 - See Web Components as hydration boundaries
 - Study a complete but minimal build tool
 
-For production projects, consider [Astro](https://astro.build) or [Fresh](https://fresh.deno.dev).
+You can use it for small websites, personal blogs, etc. For larger projects with higher risks, consider [Astro](https://astro.build), [Fresh](https://fresh.deno.dev), or another framework of your liking.
 
 ## Documentation
 
@@ -214,7 +211,7 @@ Joke PRs are fun but secondary to learning value.
 
 **Island component names must be unique across your entire project.**
 
-Castro uses component function names for island detection. If you have two islands with the same name (e.g., `Counter` in `islands/ui/Counter.tsx` and `Counter` in `islands/forms/Counter.tsx`), the build will fail with a clear error:
+If you have two islands with the same name, the build will fail with a clear error:
 
 ```
 ❌ Component name collision:
@@ -231,11 +228,7 @@ Each island must have a unique component name.
 - Name collisions could cause the wrong island to hydrate
 - Unique names ensure deterministic island detection
 
-**Solution:**
-- Use descriptive, unique names: `FormCounter`, `UICounter`, `DashboardCounter`
-- Or organize with prefixes: `Admin_Counter`, `Public_Counter`
-
-This is a reasonable constraint that most projects naturally follow.
+Use descriptive, unique names: `FormCounter`, `UICounter`, `DashboardCounter`
 
 ## Requirements
 
