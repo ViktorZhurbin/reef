@@ -9,7 +9,7 @@ import { renderToString } from "preact-render-to-string";
 import { islandWrapper } from "../islands/wrapper-jsx.js";
 import { layouts } from "../layouts/registry.js";
 import { resolveLayout } from "../layouts/resolver.js";
-import { messages } from "../messages.js";
+import { messages } from "../messages/index.js";
 import { writeHtmlPage } from "./page-writer.js";
 
 /**

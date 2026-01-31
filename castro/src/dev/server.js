@@ -30,7 +30,7 @@ import {
 	PAGES_DIR,
 } from "../constants.js";
 import { layouts } from "../layouts/registry.js";
-import { messages } from "../messages.js";
+import { messages } from "../messages/index.js";
 
 const PORT = 3000;
 

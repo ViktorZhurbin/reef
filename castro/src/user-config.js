@@ -8,7 +8,7 @@
 import { access } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { CONFIG_FILE } from "./constants.js";
-import { messages } from "./messages.js";
+import { messages } from "./messages/index.js";
 
 /**
  * @import { CastroConfig } from './types.d.ts'

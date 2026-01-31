@@ -1,11 +1,8 @@
 /**
- * The Ministry of Messages
- *
- * All themed output text in one place.
- * Communist satire wrapper around technical information.
+ * Satirical preset - Communist-themed messages
+ * One joke maximum per error, prioritizes clarity
  */
-
-export const messages = {
+export const satirical = {
 	// CLI startup
 	devServer: {
 		starting: "📡 Consulting the Central Committee...",
@@ -33,33 +30,26 @@ export const messages = {
 	errors: {
 		// Route conflicts
 		routeConflict: (/** @type {string} */ file1, /** @type {string} */ file2) =>
-			`❌ Ideological inconsistency detected.\n\n` +
-			`   Two pages claim the same route:\n` +
+			`❌ Route conflict: Two pages claim the same route\n\n` +
 			`   · ${file1}\n` +
 			`   · ${file2}\n\n` +
-			`   The revolution cannot serve two masters.\n` +
-			`   Eliminate one to restore order.`,
+			`   The revolution cannot serve two masters - eliminate one.`,
 
 		// Missing layouts
 		layoutNotFound: (/** @type {string} */ layoutName) =>
-			`❌ The Central Committee is missing!\n\n` +
-			`   Layout '${layoutName}' not found in layouts/\n` +
-			`   Every page needs leadership. Create the missing layout.`,
+			`❌ Layout '${layoutName}' not found in layouts/\n` +
+			`   Every page needs leadership - create the missing layout.`,
 
 		missingDefaultLayout: () =>
-			`❌ The State has no foundation!\n\n` +
-			`   Required layout 'default.jsx' not found in layouts/\n` +
+			`❌ Required layout 'default.jsx' not found in layouts/\n` +
 			`   The default layout is mandatory. Create it immediately.`,
 
 		noLayoutsDir: (/** @type {string} */ layoutsDir) =>
-			`❌ The Party headquarters do not exist!\n\n` +
-			`   Layouts directory not found: ${layoutsDir}\n` +
-			`   Create it and add at least default.jsx\n\n` +
-			`   The revolution needs structure.`,
+			`❌ Layouts directory not found: ${layoutsDir}\n` +
+			`   Create it and add at least default.jsx - the revolution needs structure.`,
 
 		islandNoExport: (/** @type {string} */ fileName) =>
-			`⚠️  Defective export detected.\n\n` +
-			`   ${fileName} must export a default function.\n` +
+			`⚠️  ${fileName} must export a default function.\n` +
 			`   The collective requires proper structure.`,
 
 		// Page build errors
@@ -67,14 +57,12 @@ export const messages = {
 			/** @type {string} */ fileName,
 			/** @type {string} */ errorMessage,
 		) =>
-			`❌ The Five-Year Plan has been sabotaged!\n\n` +
+			`❌ Build failed (sabotage detected)\n\n` +
 			`   Page: ${fileName}\n` +
-			`   Error: ${errorMessage}\n\n` +
-			`   Check your syntax for counter-revolutionary tendencies.`,
+			`   Error: ${errorMessage}`,
 
 		jsxNoExport: (/** @type {string} */ fileName) =>
-			`❌ Bourgeois individualism detected.\n\n` +
-			`   JSX page ${fileName} must export a default function.\n` +
+			`❌ JSX page ${fileName} must export a default function.\n` +
 			`   Components serve the collective, not themselves.`,
 
 		// Config errors

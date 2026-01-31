@@ -10,7 +10,7 @@
 import { access, glob, mkdir } from "node:fs/promises";
 import { dirname, join, relative } from "node:path";
 import { styleText } from "node:util";
-import { messages } from "../messages.js";
+import { messages } from "../messages/index.js";
 import { compileIsland } from "./compiler.js";
 
 /**

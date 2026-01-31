@@ -1,4 +1,4 @@
-import { messages } from "../messages.js";
+import { messages } from "../messages/index.js";
 import { validateSchema } from "./validateSchema.js";
 
 /** @import { PageMeta } from "../types.d.ts" */

@@ -18,7 +18,7 @@
  */
 
 import { dirname } from "node:path";
-import { messages } from "../messages.js";
+import { messages } from "../messages/index.js";
 import { validateMeta } from "../utils/validateMeta.js";
 import { compileJSX } from "./compile-jsx.js";
 import { buildPageShell } from "./page-shell.js";

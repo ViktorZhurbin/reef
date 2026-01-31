@@ -12,7 +12,7 @@
 
 import { rm } from "node:fs/promises";
 import { OUTPUT_DIR } from "./constants.js";
-import { messages } from "./messages.js";
+import { messages } from "./messages/index.js";
 import { cleanupTempDir } from "./utils/cache.js";
 
 // Clean up old build artifacts at startup

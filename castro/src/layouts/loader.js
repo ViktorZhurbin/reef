@@ -23,7 +23,7 @@ import { styleText } from "node:util";
 import { compileJSX } from "../build/compile-jsx.js";
 import { writeCSSFiles } from "../build/write-css.js";
 import { LAYOUTS_DIR, OUTPUT_DIR } from "../constants.js";
-import { messages } from "../messages.js";
+import { messages } from "../messages/index.js";
 import { resolveTempDir } from "../utils/cache.js";
 
 /**
